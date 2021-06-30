@@ -1,0 +1,47 @@
+{
+  "name": "WSSlots",
+  "version": "1.0.0",
+  "namemsg": "wsslots-extensionname",
+  "url": "https://wikibase-solutions.com",
+  "type": "other",
+  "author": [
+    "[https://mediawiki.org/wiki/User:Xxmarijnw Marijn van Wezel] ([https://wikibase-solutions.com Wikibase Solutions])"
+  ],
+  "descriptionmsg": "wsslots-desc",
+  "license-name": "GPL-2.0-or-later",
+  "requires": {
+    "MediaWiki": ">= 1.35.0"
+  },
+  "MessagesDirs": {
+    "WSSlots": [
+      "i18n"
+    ]
+  },
+  "AutoloadNamespaces": {
+    "WSSlots\\": "src/"
+  },
+  "Hooks": {
+    "MediaWikiServices": "MediaWikiServicesHookHandler"
+  },
+  "HookHandlers": {
+    "MediaWikiServicesHookHandler": {
+      "class": "WSSlots\\MediaWikiServicesHookHandler"
+    }
+  },
+  "config": {
+    "WSSlotsDefinedSlots": {
+      "value": {}
+    },
+    "WSSlotsDefaultContentModel": {
+      "value": "wikitext"
+    },
+    "WSSlotsDefaultSlotRoleLayout": {
+      "value": {
+        "display": "none",
+        "region": "center",
+        "placement": "append"
+      }
+    }
+  },
+  "manifest_version": 2
+}
