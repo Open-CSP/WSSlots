@@ -43,5 +43,8 @@
       }
     }
   },
+  "APIModules": {
+    "editslot": "WSSlots\\ApiEditSlot"
+  },
   "manifest_version": 2
 }

@@ -10,5 +10,13 @@
   "wsslots-invalid-default-content-model-config": "Missing or invalid value for $wgWSSlotsDefaultContentModel.",
   "wsslots-invalid-default-slot-role-config": "Missing or invalid value for $wgWSSlotsDefaultSlotRoleLayout.",
   "wsslots-invalid-slot-definition": "Invalid slot definition!",
-  "wsslots-duplicate-role-definition": "The slot role '$1' has already been defined, skipping."
+  "wsslots-duplicate-role-definition": "The slot role '$1' has already been defined, skipping.",
+  "apihelp-editslot-summary": "Create and edit slots on pages.",
+  "apihelp-editslot-param-title": "Title of the page to edit. Cannot be used together with pageid.",
+  "apihelp-editslot-param-pageid": "Page ID of the page to edit. Cannot be used together with title.",
+  "apihelp-editslot-param-text": "Page content to insert or append.",
+  "apihelp-editslot-param-slot": "The name of the slot to edit.",
+  "apihelp-editslot-param-append": "Whether to append the text to the existing slot content",
+  "apihelp-editslot-param-summary": "Edit summary.",
+  "wsslots-apierror-unknownslot": "Unknown slot '$1'."
 }
