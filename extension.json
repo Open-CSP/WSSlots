@@ -21,11 +21,16 @@
     "WSSlots\\": "src/"
   },
   "Hooks": {
-    "MediaWikiServices": "MediaWikiServicesHookHandler"
+    "MediaWikiServices": "MediaWikiServicesHookHandler",
+    "ParserBeforeInternalParse": "ParserBeforeInternalParseHookHandler"
   },
   "HookHandlers": {
     "MediaWikiServicesHookHandler": {
       "class": "WSSlots\\MediaWikiServicesHookHandler"
+    },
+    "ParserBeforeInternalParseHookHandler": {
+      "class": "WSSlots\\ParserBeforeInternalParseHookHandler",
+      "services": [ "MainConfig" ]
     }
   },
   "config": {
@@ -41,6 +46,9 @@
         "region": "center",
         "placement": "append"
       }
+    },
+    "WSSlotsSlotsToAppend": {
+      "value": {}
     }
   },
   "APIModules": {

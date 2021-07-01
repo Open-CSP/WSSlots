@@ -9,6 +9,7 @@
   "wsslots-invalid-defined-slots-config": "Missing or invalid value for $wgWSSlotsDefinedSlots.",
   "wsslots-invalid-default-content-model-config": "Missing or invalid value for $wgWSSlotsDefaultContentModel.",
   "wsslots-invalid-default-slot-role-config": "Missing or invalid value for $wgWSSlotsDefaultSlotRoleLayout.",
+  "wsslots-invalid-append-slots-config": "Missing or invalid value for $wgWSSlotsSlotsToAppend.",
   "wsslots-invalid-slot-definition": "Invalid slot definition!",
   "wsslots-duplicate-role-definition": "The slot role '$1' has already been defined, skipping.",
   "apihelp-editslot-summary": "Create and edit slots on pages.",

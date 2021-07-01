@@ -109,7 +109,7 @@ class ApiEditSlot extends ApiBase {
 		}
 
 		// Set the content for the slot we want to edit
-		if ( $revision_record->hasSlot( $params["slot"] ) ) {
+		if ( $revision_record !== null && $revision_record->hasSlot( $params["slot"] ) ) {
 			$slot = $revision_record->getSlot( $params["slot"] );
 			$slot_content_handler = $slot->getContent()->getContentHandler();
 			$model_id = $slot_content_handler->getModelID();
@@ -180,7 +180,7 @@ class ApiEditSlot extends ApiBase {
 	 * @inheritDoc
 	 */
 	public function needsToken() {
-		//return 'csrf';
+		return 'csrf';
 	}
 
 	/**

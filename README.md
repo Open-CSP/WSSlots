@@ -32,3 +32,7 @@ This is the default content model to use, if no content model is given explicitl
 ### `$wgWSSlotsDefaultSlotRoleLayout`
 
 This is the default slot role layout to use, if no slot role layout is given explicitly.
+
+### `$wgWSSlotsSlotsToAppend`
+
+This configuration options specifies from which slots the content should be appended when a page is parsed. It is an array of slot names. Please note that the content will be appended for each parse of the page.
