@@ -39,4 +39,6 @@ This configuration options specifies from which slots the content should be appe
 
 ## Parser functions
 
-The extension provides the `#slot` parser function to get the content of a specific slot. For example, `{{#slot: main}}` returns the content of the `main` slot.
+The extension provides the `#slot` parser function to get the content of a specific slot. For example, `{{#slot: main}}` returns the content of the `main` slot. You can optionally specify a page as the second parameter. For instance, `{{#slot: main | Foobar }}` gets the `main` slot from the page `Foobar`.
+
+The extension also provides the `#slottemplates` parser function that returns the templates in a specific slot as a multidimensional array. This parser function required WSArrays to be installed. For example, `{{#slottemplates: main | Foobar | foo }}` creates a multidimensional array `foo` with the templates in the `main` slot of the page `Foobar`. If no page is given, the current page is fetched.
