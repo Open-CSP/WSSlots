@@ -1,6 +1,6 @@
 {
   "name": "WSSlots",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "namemsg": "wsslots-extensionname",
   "url": "https://wikibase-solutions.com",
   "type": "other",
@@ -22,7 +22,8 @@
   },
   "Hooks": {
     "MediaWikiServices": "MediaWikiServicesHookHandler",
-    "ParserBeforeInternalParse": "ParserBeforeInternalParseHookHandler"
+    "ParserBeforeInternalParse": "ParserBeforeInternalParseHookHandler",
+    "ParserFirstCallInit": "ParserFirstCallInitHookHandler"
   },
   "HookHandlers": {
     "MediaWikiServicesHookHandler": {
@@ -31,7 +32,13 @@
     "ParserBeforeInternalParseHookHandler": {
       "class": "WSSlots\\ParserBeforeInternalParseHookHandler",
       "services": [ "MainConfig" ]
+    },
+    "ParserFirstCallInitHookHandler": {
+      "class": "WSSlots\\ParserFirstCallInitHookHandler"
     }
+  },
+  "ExtensionMessagesFiles": {
+    "WSSlotsMagic": "i18n/WSSlots.i18n.php"
   },
   "config": {
     "WSSlotsDefinedSlots": {

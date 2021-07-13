@@ -36,3 +36,7 @@ This is the default slot role layout to use, if no slot role layout is given exp
 ### `$wgWSSlotsSlotsToAppend`
 
 This configuration options specifies from which slots the content should be appended when a page is parsed. It is an array of slot names. Please note that the content will be appended for each parse of the page.
+
+## Parser functions
+
+The extension provides the `#slot` parser function to get the content of a specific slot. For example, `{{#slot: main}}` returns the content of the `main` slot.
