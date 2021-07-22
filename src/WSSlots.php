@@ -4,12 +4,20 @@ namespace WSSlots;
 
 use Content;
 use ContentHandler;
+use ExtensionRegistry;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionAccessException;
 use MediaWiki\Revision\SlotRoleRegistry;
+use MediaWiki\Storage\RevisionRecord;
 use MediaWiki\Storage\SlotRecord;
 use RecentChange;
+use SMW\ApplicationFactory;
+use SMW\Maintenance\DataRebuilder;
+use SMW\Options;
+use SMW\Store;
+use SMW\StoreFactory;
 use TextContent;
+use Title;
 use User;
 use WikiPage;
 use WikiRevision;
@@ -112,10 +120,76 @@ abstract class WSSlots {
 		$new_wiki_revision->setTimestamp( wfTimestampNow() );
 		$new_wiki_revision->setUserObj( $user );
 
-		MediaWikiServices::getInstance()
-			->getWikiRevisionOldRevisionImporter()
-			->import( $new_wiki_revision );
+		self::insertRevision( $new_wiki_revision );
+		self::insertRecentChanges( $old_revision_record, $new_wiki_revision, $slot_name, $title_object, $user, $summary );
+		self::performSemanticDataRebuild( $title_object );
 
+		return true;
+	}
+
+	/**
+	 * @param WikiPage $wikipage
+	 * @param string $slot
+	 * @return Content|null The content in the given slot, or NULL if no content exists
+	 */
+	public static function getSlotContent( WikiPage $wikipage, string $slot ) {
+		$revision_record = $wikipage->getRevisionRecord();
+
+		if ( $revision_record === null ) {
+			return null;
+		}
+
+		if ( !$revision_record->hasSlot( $slot ) ) {
+			return null;
+		}
+
+		return $revision_record->getContent( $slot );
+	}
+
+	/**
+	 * Performs a data rebuild for the given WikiPage object, if SemanticMediaWiki is installed.
+	 *
+	 * @param Title $title
+	 */
+	private static function performSemanticDataRebuild( Title $title ): void {
+		if ( !ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ) {
+			return;
+		}
+
+		$store = StoreFactory::getStore();
+		$store->setOption( Store::OPT_CREATE_UPDATE_JOB, false );
+
+		$rebuilder = new DataRebuilder(
+			$store,
+			ApplicationFactory::getInstance()->newTitleFactory()
+		);
+
+		$rebuilder->setOptions(
+		// Tell SMW to only rebuild the current page
+			new Options( [ "page" => $title->getText() ] )
+		);
+
+		$rebuilder->rebuild();
+	}
+
+	/**
+	 * Inserts the update into the RecentChanges.
+	 *
+	 * @param RevisionRecord|null $old_revision_record
+	 * @param WikiRevision $new_wiki_revision
+	 * @param string $slot_name
+	 * @param Title $title_object
+	 * @param User $user
+	 * @param string $summary
+	 */
+	private static function insertRecentChanges(
+		$old_revision_record,
+		WikiRevision $new_wiki_revision,
+		string $slot_name,
+		Title $title_object,
+		User $user,
+		string $summary
+	) {
 		$timestamp = wfTimestampNow();
 
 		$new_revision_size = $new_wiki_revision->getContent( $slot_name )->getSize();
@@ -158,26 +232,16 @@ abstract class WSSlots {
 				$new_revision_id
 			);
 		}
-
-		return true;
 	}
 
 	/**
-	 * @param WikiPage $wikipage
-	 * @param string $slot
-	 * @return Content|null The content in the given slot, or NULL if no content exists
+	 * Inserts the given WikiRevision into the database.
+	 *
+	 * @param WikiRevision $new_wiki_revision
 	 */
-	public static function getSlotContent( WikiPage $wikipage, string $slot ) {
-		$revision_record = $wikipage->getRevisionRecord();
-
-		if ( $revision_record === null ) {
-			return null;
-		}
-
-		if ( !$revision_record->hasSlot( $slot ) ) {
-			return null;
-		}
-
-		return $revision_record->getContent( $slot );
+	private static function insertRevision( WikiRevision $new_wiki_revision ) {
+		$revision_importer = MediaWikiServices::getInstance()
+			->getWikiRevisionOldRevisionImporter();
+		$revision_importer->import( $new_wiki_revision );
 	}
 }
