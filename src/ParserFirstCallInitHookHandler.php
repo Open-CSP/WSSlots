@@ -33,9 +33,9 @@ class ParserFirstCallInitHookHandler implements ParserFirstCallInitHook {
 	 * @param Parser $parser
 	 * @param string $slot_name
 	 * @param string|null $page_name
-	 * @return string
+	 * @return string|array
 	 */
-	public static function getSlotContent( Parser $parser, string $slot_name, string $page_name = null ): string {
+	public static function getSlotContent( Parser $parser, string $slot_name, string $page_name = null, string $parse = null ) {
 		$wikipage = self::getWikiPage( $page_name );
 
 		if ( !$wikipage ) {
@@ -52,7 +52,13 @@ class ParserFirstCallInitHookHandler implements ParserFirstCallInitHook {
 			return "";
 		}
 
-		return $content_object->serialize();
+		$content = $content_object->serialize();
+
+		if ( $parse ) {
+			return [ $content, 'noparse' => false ];
+		} else {
+			return $content;
+		}
 	}
 
 	/**
