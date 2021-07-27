@@ -102,6 +102,10 @@ abstract class WSSlots {
 
 		$slot_content = ContentHandler::makeContent( $text, $title_object, $model_id );
 
+		if ( $slot_name !== SlotRecord::MAIN ) {
+			$page_updater->addTag( 'wsslots-slot-edit' );
+		}
+
 		$page_updater->setContent( $slot_name, $slot_content );
 		$page_updater->saveRevision( \CommentStoreComment::newUnsavedComment( $summary ) );
 

@@ -23,7 +23,9 @@
   "Hooks": {
     "MediaWikiServices": "MediaWikiServicesHookHandler",
     "ParserBeforeInternalParse": "ParserBeforeInternalParseHookHandler",
-    "ParserFirstCallInit": "ParserFirstCallInitHookHandler"
+    "ParserFirstCallInit": "ParserFirstCallInitHookHandler",
+    "ListDefinedTags": "TagsHookHandler",
+    "ChangeTagsListActive": "TagsHookHandler"
   },
   "HookHandlers": {
     "MediaWikiServicesHookHandler": {
@@ -35,6 +37,9 @@
     },
     "ParserFirstCallInitHookHandler": {
       "class": "WSSlots\\ParserFirstCallInitHookHandler"
+    },
+    "TagsHookHandler": {
+      "class": "WSSlots\\TagsHookHandler"
     }
   },
   "ExtensionMessagesFiles": {
