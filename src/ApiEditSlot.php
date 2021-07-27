@@ -118,7 +118,7 @@ class ApiEditSlot extends ApiBase {
 	 * @inheritDoc
 	 */
 	public function needsToken() {
-		//return 'csrf';
+		return 'csrf';
 	}
 
 	/**
