@@ -6,11 +6,8 @@ use Content;
 use ContentHandler;
 use ExtensionRegistry;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Revision\RevisionAccessException;
 use MediaWiki\Revision\SlotRoleRegistry;
-use MediaWiki\Storage\RevisionRecord;
 use MediaWiki\Storage\SlotRecord;
-use RecentChange;
 use SMW\ApplicationFactory;
 use SMW\Maintenance\DataRebuilder;
 use SMW\Options;
@@ -20,7 +17,6 @@ use TextContent;
 use Title;
 use User;
 use WikiPage;
-use WikiRevision;
 
 /**
  * Class WSSlots
@@ -108,8 +104,35 @@ abstract class WSSlots {
 
 		$page_updater->setContent( $slot_name, $slot_content );
 		$page_updater->saveRevision( \CommentStoreComment::newUnsavedComment( $summary ) );
+		self::performSemanticDataRebuild( $title_object );
 
 		return true;
+	}
+
+	/**
+	 * Performs a data rebuild for the given WikiPage object, if SemanticMediaWiki is installed.
+	 *
+	 * @param Title $title
+	 */
+	private static function performSemanticDataRebuild( Title $title ): void {
+		if ( !ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ) {
+			return;
+		}
+
+		$store = StoreFactory::getStore();
+		$store->setOption( Store::OPT_CREATE_UPDATE_JOB, false );
+
+		$rebuilder = new DataRebuilder(
+			$store,
+			ApplicationFactory::getInstance()->newTitleFactory()
+		);
+
+		$rebuilder->setOptions(
+		// Tell SMW to only rebuild the current page
+			new Options( [ "page" => $title->getText() ] )
+		);
+
+		$rebuilder->rebuild();
 	}
 
 	/**
