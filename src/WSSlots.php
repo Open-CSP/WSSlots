@@ -4,6 +4,7 @@ namespace WSSlots;
 
 use Content;
 use ContentHandler;
+use DeferredUpdates;
 use ExtensionRegistry;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRoleRegistry;
@@ -104,7 +105,22 @@ abstract class WSSlots {
 
 		$page_updater->setContent( $slot_name, $slot_content );
 		$page_updater->saveRevision( \CommentStoreComment::newUnsavedComment( $summary ) );
-		self::performSemanticDataRebuild( $title_object );
+
+		$config = MediaWikiServices::getInstance()->getMainConfig();
+
+		if ( $config->get( "WSSlotsDoPurge" ) ) {
+			$wikipage_object->doPurge();
+			$wikipage_object->updateParserCache( [
+				'causeAction' => 'slot-purge',
+				'causeAgent' => $user->getName()
+			] );
+			$wikipage_object->doSecondaryDataUpdates( [
+				'recursive' => false,
+				'causeAction' => 'slot-purge',
+				'causeAgent' => $user->getName(),
+				'defer' => DeferredUpdates::PRESEND
+			] );
+		}
 
 		return true;
 	}

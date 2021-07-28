@@ -35,7 +35,11 @@ This is the default slot role layout to use, if no slot role layout is given exp
 
 ### `$wgWSSlotsSlotsToAppend`
 
-This configuration options specifies from which slots the content should be appended when a page is parsed. It is an array of slot names. Please note that the content will be appended for each parse of the page.
+This configuration option specifies from which slots the content should be appended when a page is parsed. It is an array of slot names. Please note that the content will be appended for each parse of the page.
+
+### `$wgWSSlotsDoPurge`
+
+This configuration option specifies whether to purge the page after a slot edit is performed.
 
 ## Parser functions
 
