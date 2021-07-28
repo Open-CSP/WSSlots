@@ -109,6 +109,8 @@ abstract class WSSlots {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 
 		if ( $config->get( "WSSlotsDoPurge" ) ) {
+			self::performSemanticDataRebuild( $title_object );
+
 			$wikipage_object->doPurge();
 			$wikipage_object->updateParserCache( [
 				'causeAction' => 'slot-purge',
