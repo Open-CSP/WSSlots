@@ -2,20 +2,13 @@
 
 namespace WSSlots;
 
+use CommentStoreComment;
 use Content;
 use ContentHandler;
-use DeferredUpdates;
-use ExtensionRegistry;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRoleRegistry;
 use MediaWiki\Storage\SlotRecord;
-use SMW\ApplicationFactory;
-use SMW\Maintenance\DataRebuilder;
-use SMW\Options;
-use SMW\Store;
-use SMW\StoreFactory;
 use TextContent;
-use Title;
 use User;
 use WikiPage;
 
@@ -103,54 +96,13 @@ abstract class WSSlots {
 			$page_updater->addTag( 'wsslots-slot-edit' );
 		}
 
+		$comment = CommentStoreComment::newUnsavedComment( $summary );
 		$page_updater->setContent( $slot_name, $slot_content );
-		$page_updater->saveRevision( \CommentStoreComment::newUnsavedComment( $summary ) );
+		$page_updater->saveRevision( $comment, EDIT_INTERNAL );
 
-		$config = MediaWikiServices::getInstance()->getMainConfig();
-
-		if ( $config->get( "WSSlotsDoPurge" ) ) {
-			self::performSemanticDataRebuild( $title_object );
-
-			$wikipage_object->doPurge();
-			$wikipage_object->updateParserCache( [
-				'causeAction' => 'slot-purge',
-				'causeAgent' => $user->getName()
-			] );
-			$wikipage_object->doSecondaryDataUpdates( [
-				'recursive' => false,
-				'causeAction' => 'slot-purge',
-				'causeAgent' => $user->getName(),
-				'defer' => DeferredUpdates::PRESEND
-			] );
-		}
+		self::refreshData( $wikipage_object, $user );
 
 		return true;
-	}
-
-	/**
-	 * Performs a data rebuild for the given WikiPage object, if SemanticMediaWiki is installed.
-	 *
-	 * @param Title $title
-	 */
-	private static function performSemanticDataRebuild( Title $title ): void {
-		if ( !ExtensionRegistry::getInstance()->isLoaded( 'SemanticMediaWiki' ) ) {
-			return;
-		}
-
-		$store = StoreFactory::getStore();
-		$store->setOption( Store::OPT_CREATE_UPDATE_JOB, false );
-
-		$rebuilder = new DataRebuilder(
-			$store,
-			ApplicationFactory::getInstance()->newTitleFactory()
-		);
-
-		$rebuilder->setOptions(
-		// Tell SMW to only rebuild the current page
-			new Options( [ "page" => $title->getText() ] )
-		);
-
-		$rebuilder->rebuild();
 	}
 
 	/**
@@ -170,5 +122,25 @@ abstract class WSSlots {
 		}
 
 		return $revision_record->getContent( $slot );
+	}
+
+	/**
+	 * Performs a refresh if necessary.
+	 *
+	 * @param WikiPage $wikipage_object
+	 * @param User $user
+	 * @throws \MWException
+	 */
+	private static function refreshData( WikiPage $wikipage_object, User $user ) {
+		$config = MediaWikiServices::getInstance()->getMainConfig();
+
+		if ( !$config->get( "WSSlotsDoPurge" ) ) {
+			return;
+		}
+
+		// Perform an additional null-edit to make sure all page properties are up-to-date
+		$comment = CommentStoreComment::newUnsavedComment( "");
+		$page_updater = $wikipage_object->newPageUpdater( $user );
+		$page_updater->saveRevision( $comment, EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY );
 	}
 }
