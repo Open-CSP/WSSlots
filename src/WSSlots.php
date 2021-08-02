@@ -97,10 +97,13 @@ abstract class WSSlots {
 		}
 
 		$comment = CommentStoreComment::newUnsavedComment( $summary );
+
 		$page_updater->setContent( $slot_name, $slot_content );
 		$page_updater->saveRevision( $comment, EDIT_INTERNAL );
 
-		self::refreshData( $wikipage_object, $user );
+		if ( !$page_updater->isUnchanged() ) {
+			self::refreshData( $wikipage_object, $user );
+		}
 
 		return true;
 	}
