@@ -43,14 +43,16 @@ abstract class WSSlots {
 		bool $append = false
 	) {
 		$title_object = $wikipage_object->getTitle();
-
-		/** @var SlotRoleRegistry $slot_role_registery */
+		$page_updater = $wikipage_object->newPageUpdater( $user );
+		$old_revision_record = $wikipage_object->getRevisionRecord();
 		$slot_role_registry = MediaWikiServices::getInstance()->getSlotRoleRegistry();
 
+		// Make sure the slot we are editing exists
 		if ( !$slot_role_registry->isDefinedRole( $slot_name ) ) {
 			return [wfMessage( "wsslots-apierror-unknownslot", $slot_name ), "unknownslot"];
 		}
 
+		// Alter $text when the $append parameter is set
 		if ( $append ) {
 			// We want to append the given text to the current page, instead of replacing the content
 			$content = self::getSlotContent( $wikipage_object, $slot_name );
@@ -68,8 +70,26 @@ abstract class WSSlots {
 			}
 		}
 
-		$page_updater = $wikipage_object->newPageUpdater( $user );
-		$old_revision_record = $wikipage_object->getRevisionRecord();
+		if ( $text === "" && $slot_name !== SlotRecord::MAIN ) {
+			// Remove the slot if $text is empty and the slot name is not MAIN
+			$page_updater->removeSlot( $slot_name );
+		} else {
+			// Set the content for the slot we want to edit
+			if ( $old_revision_record !== null && $old_revision_record->hasSlot( $slot_name ) ) {
+				$model_id = $old_revision_record
+					->getSlot( $slot_name )
+					->getContent()
+					->getContentHandler()
+					->getModelID();
+			} else {
+				$model_id = $slot_role_registry
+					->getRoleHandler( $slot_name )
+					->getDefaultModel( $title_object );
+			}
+
+			$slot_content = ContentHandler::makeContent( $text, $title_object, $model_id );
+			$page_updater->setContent( $slot_name, $slot_content );
+		}
 
 		if ( $old_revision_record === null ) {
 			// The 'main' content slot MUST be set when creating a new page
@@ -77,28 +97,11 @@ abstract class WSSlots {
 			$page_updater->setContent( SlotRecord::MAIN, $main_content );
 		}
 
-		// Set the content for the slot we want to edit
-		if ( $old_revision_record !== null && $old_revision_record->hasSlot( $slot_name ) ) {
-			$model_id = $old_revision_record
-				->getSlot( $slot_name )
-				->getContent()
-				->getContentHandler()
-				->getModelID();
-		} else {
-			$model_id = $slot_role_registry
-				->getRoleHandler( $slot_name )
-				->getDefaultModel( $title_object );
-		}
-
-		$slot_content = ContentHandler::makeContent( $text, $title_object, $model_id );
-
 		if ( $slot_name !== SlotRecord::MAIN ) {
 			$page_updater->addTag( 'wsslots-slot-edit' );
 		}
 
 		$comment = CommentStoreComment::newUnsavedComment( $summary );
-
-		$page_updater->setContent( $slot_name, $slot_content );
 		$page_updater->saveRevision( $comment, EDIT_INTERNAL );
 
 		if ( !$page_updater->isUnchanged() ) {

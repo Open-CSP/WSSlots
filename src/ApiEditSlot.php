@@ -55,10 +55,12 @@ class ApiEditSlot extends ApiBase {
   			[ 'autoblock' => true ]
   		);
 
+		$text = isset( $params["text"] ) ? $params["text"] : "";
+
 		$result = WSSlots::editSlot(
 			$user,
 			$wikipage_object,
-			$params["text"],
+			$text,
 			$params["slot"],
 			$params["summary"],
 			$params["append"]
@@ -96,8 +98,7 @@ class ApiEditSlot extends ApiBase {
 				ApiBase::PARAM_TYPE => 'integer'
 			],
 			'text' => [
-				ApiBase::PARAM_TYPE => 'text',
-				ApiBase::PARAM_REQUIRED => true
+				ApiBase::PARAM_TYPE => 'text'
 			],
 			'slot' => [
 				ApiBase::PARAM_TYPE => 'text',
