@@ -137,7 +137,7 @@ abstract class WSSlots {
 	 * @param User $user
 	 * @throws \MWException
 	 */
-	private static function refreshData( WikiPage $wikipage_object, User $user ) {
+	public static function refreshData( WikiPage $wikipage_object, User $user ) {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 
 		if ( !$config->get( "WSSlotsDoPurge" ) ) {
