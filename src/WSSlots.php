@@ -28,6 +28,7 @@ abstract class WSSlots {
 	 * @param string $slot_name The slot to edit
 	 * @param string $summary The summary to use
 	 * @param bool $append Whether to append to or replace the current text
+     * @param string $watchlist Set to "nochange" to suppress watchlist notifications
 	 *
 	 * @return true|array True on success, and an error message with an error code otherwise
 	 *
@@ -40,7 +41,8 @@ abstract class WSSlots {
 		string $text,
 		string $slot_name,
 		string $summary,
-		bool $append = false
+		bool $append = false,
+        string $watchlist = ""
 	) {
 		$title_object = $wikipage_object->getTitle();
 		$page_updater = $wikipage_object->newPageUpdater( $user );
@@ -101,8 +103,14 @@ abstract class WSSlots {
 			$page_updater->addTag( 'wsslots-slot-edit' );
 		}
 
+        $flags = EDIT_INTERNAL;
 		$comment = CommentStoreComment::newUnsavedComment( $summary );
-		$page_updater->saveRevision( $comment, EDIT_INTERNAL );
+
+        if ( $watchlist === "nochange" ) {
+            $flags |= EDIT_SUPPRESS_RC;
+        }
+
+		$page_updater->saveRevision( $comment, $flags );
 
 		if ( !$page_updater->isUnchanged() ) {
 			self::refreshData( $wikipage_object, $user );

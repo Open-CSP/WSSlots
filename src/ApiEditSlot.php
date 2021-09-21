@@ -63,7 +63,8 @@ class ApiEditSlot extends ApiBase {
 			$text,
 			$params["slot"],
 			$params["summary"],
-			$params["append"]
+			$params["append"],
+            $params["watchlist"]
 		);
 
 		if ($result !== true) {
@@ -112,6 +113,10 @@ class ApiEditSlot extends ApiBase {
 				ApiBase::PARAM_TYPE => 'text',
 				ParamValidator::PARAM_DEFAULT => ""
 			],
+            'watchlist' => [
+                ApiBase::PARAM_TYPE => 'text',
+                ParamValidator::PARAM_DEFAULT => ""
+            ]
 		];
 	}
 
