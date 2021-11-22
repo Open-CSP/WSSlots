@@ -53,6 +53,10 @@ class ParserBeforeInternalParseHookHandler implements ParserBeforeInternalParseH
 			return true;
 		}
 
+		if ( !$title->canExist() ) {
+			return true;
+		}
+
 		try {
 			$wikipage = \WikiPage::factory( $title );
 		} catch ( \MWException $exception ) {
