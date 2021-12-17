@@ -6,9 +6,4 @@
   },
   "wsslots-extensionname": "{{notranslate}}\\n\\nName of the extension as it should be displayed.\\n\\n{{Identical|WSSlots}}",
   "wsslots-desc": "{{desc|name=WSSlots|url=https://www.mediawiki.org/wiki/Extension:WSSlots}}",
-  "wsslots-invalid-defined-slots-config": "Log message for when no or an invalid value for $wgWSSlotsDefaultDefinedSlots was given.",
-  "wsslots-invalid-default-content-model-config": "Log message for when no or an invalid value for $wgWSSlotsDefaultContentModel was given.",
-  "wsslots-invalid-default-slot-role-config": "Log message for when no or an invalid value for $wgWSSlotsDefaultSlotRoleConfig was given..",
-  "wsslots-invalid-slot-definition": "Log message for when an invalid slot definition is configured.",
-  "wsslots-duplicate-role-definition": "Log message for when a role name is used multiple times, where the first parameter is the name of the duplicate."
 }
