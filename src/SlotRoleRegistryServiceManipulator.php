@@ -50,7 +50,7 @@ class SlotRoleRegistryServiceManipulator {
 			}
 			/** @var array $defined_slots */
 		} catch ( ConfigException $exception ) {
-			$this->logger->critical( wfMessage( "wsslots-invalid-defined-slots-config" ) );
+			$this->logger->critical( "Missing or invalid value for \$wgWSSlotsDefinedSlots." );
 			$defined_slots = [];
 		}
 
@@ -61,7 +61,7 @@ class SlotRoleRegistryServiceManipulator {
 			}
 			/** @var string $default_content_model */
 		} catch ( ConfigException $exception ) {
-			$this->logger->critical( wfMessage( "wsslots-invalid-default-content-model-config" ) );
+			$this->logger->critical( "Missing or invalid value for \$wgWSSlotsDefaultContentModel." );
 			$default_content_model = "wikitext";
 		}
 
@@ -72,7 +72,7 @@ class SlotRoleRegistryServiceManipulator {
 			}
 			/** @var array $default_slot_role_layout */
 		} catch ( ConfigException $exception ) {
-			$this->logger->critical( wfMessage( "wsslots-invalid-default-slot-role-config" ) );
+			$this->logger->critical( "Missing or invalid value for \$wgWSSlotsDefaultSlotRoleLayout." );
 			$default_slot_role_layout = [
 				"display" => "none",
 				"region" => "center",
@@ -89,7 +89,7 @@ class SlotRoleRegistryServiceManipulator {
 				$slot_settings = [];
 			} else {
 				// This slot definition is invalid
-				$this->logger->critical( wfMessage( "wsslots-invalid-slot-definition" ) );
+				$this->logger->critical( "Invalid slot definition!" );
 				continue;
 			}
 
@@ -120,7 +120,7 @@ class SlotRoleRegistryServiceManipulator {
 		array $slot_settings
 	): bool {
 		if ( $registry->isDefinedRole( $slot_name ) ) {
-			$this->logger->alert( wfMessage( "wsslots-duplicate-role-definition", $slot_name ) );
+			$this->logger->alert( "The slot role '$slot_name' has already been defined, skipping." );
 			return false;
 		}
 
