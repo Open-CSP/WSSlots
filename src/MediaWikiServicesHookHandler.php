@@ -21,12 +21,9 @@ class MediaWikiServicesHookHandler implements MediaWikiServicesHook {
 	 * @inheritDoc
 	 */
 	public function onMediaWikiServices( $services ) {
-		/** @var MediaWikiServices $services */
-
-		$logger = LoggerFactory::getInstance( "WSSlots" );
 		$config = $services->getMainConfig();
 
-		$service_manipulator = new SlotRoleRegistryServiceManipulator( $config, $logger );
+		$service_manipulator = new SlotRoleRegistryServiceManipulator( $config );
 		$manipulator = [ $service_manipulator, "defineRoles" ];
 		$services->addServiceManipulator( "SlotRoleRegistry", $manipulator );
 	}

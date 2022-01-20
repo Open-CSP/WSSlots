@@ -29,11 +29,10 @@ class SlotRoleRegistryServiceManipulator {
 	 * SlotRoleRegistryServiceManipulator constructor.
 	 *
 	 * @param Config $config The Config to use
-	 * @param LoggerInterface $logger The logger to send log messages to
 	 */
-	public function __construct( Config $config, LoggerInterface $logger ) {
+	public function __construct( Config $config ) {
 		$this->config = $config;
-		$this->logger = $logger;
+		$this->logger = Logger::getLogger();
 	}
 
 	/**

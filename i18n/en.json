@@ -15,6 +15,7 @@
   "apihelp-editslot-param-append": "Whether to append the text to the existing slot content",
   "apihelp-editslot-param-summary": "Edit summary.",
   "wsslots-apierror-unknownslot": "Unknown slot '$1'.",
+  "wsslots-error-invalid-wikipage-object": "The given WikiPage object is not valid, since it does not have a Title.",
   "tag-wsslots-slot-edit": "Metadata slot edit",
   "tag-wsslots-slot-edit-description": "Edit made using WSSlots"
 }

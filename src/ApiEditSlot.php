@@ -69,6 +69,11 @@ class ApiEditSlot extends ApiBase {
 
 		if ($result !== true) {
 			list($message, $code) = $result;
+
+			Logger::getLogger()->alert('Editing slot failed while performing edit through the "editslot" API: {message}', [
+				'message' => $message
+			]);
+
 			$this->dieWithError($message, $code);
 		}
 	}

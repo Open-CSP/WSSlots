@@ -36,7 +36,7 @@ class ParserBeforeInternalParseHookHandler implements ParserBeforeInternalParseH
 	 */
 	public function __construct( Config $config ) {
 		$this->config = $config;
-		$this->logger = LoggerFactory::getInstance( "WSSlots" );
+		$this->logger = Logger::getLogger();
 	}
 
 	/**
