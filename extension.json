@@ -22,18 +22,14 @@
   },
   "Hooks": {
     "MediaWikiServices": "MediaWikiServicesHookHandler",
-    "ParserBeforeInternalParse": "ParserBeforeInternalParseHookHandler",
     "ParserFirstCallInit": "ParserFirstCallInitHookHandler",
     "ListDefinedTags": "TagsHookHandler",
-    "ChangeTagsListActive": "TagsHookHandler"
+    "ChangeTagsListActive": "TagsHookHandler",
+    "SMW::Store::BeforeDataUpdateComplete": "\\WSSlots\\WSSlots::onBeforeDataUpdateComplete"
   },
   "HookHandlers": {
     "MediaWikiServicesHookHandler": {
       "class": "WSSlots\\MediaWikiServicesHookHandler"
-    },
-    "ParserBeforeInternalParseHookHandler": {
-      "class": "WSSlots\\ParserBeforeInternalParseHookHandler",
-      "services": [ "MainConfig" ]
     },
     "ParserFirstCallInitHookHandler": {
       "class": "WSSlots\\ParserFirstCallInitHookHandler"
@@ -59,7 +55,7 @@
         "placement": "append"
       }
     },
-    "WSSlotsSlotsToAppend": {
+    "WSSlotsSemanticSlots": {
       "value": {}
     },
     "WSSlotsDoPurge": {
