@@ -152,8 +152,7 @@ abstract class WSSlots {
      * @param SemanticData $semanticData
      * @return bool
      */
-	public static function onBeforeDataUpdateComplete( Store $store, SemanticData $semanticData ): bool
-    {
+	public static function onBeforeDataUpdateComplete( Store $store, SemanticData $semanticData ): bool {
         $subjectTitle = $semanticData->getSubject()->getTitle();
 
         if ( $subjectTitle === null ) {

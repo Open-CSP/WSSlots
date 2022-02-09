@@ -65,5 +65,6 @@
   "APIModules": {
     "editslot": "WSSlots\\ApiEditSlot"
   },
-  "manifest_version": 2
+  "manifest_version": 2,
+  "load_composer_autoloader": true
 }
