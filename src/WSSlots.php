@@ -160,7 +160,6 @@ abstract class WSSlots {
             return true;
         }
 
-
         $semanticSlots = RequestContext::getMain()->getConfig()->get('WSSlotsSemanticSlots');
 
         try {

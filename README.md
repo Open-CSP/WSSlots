@@ -2,6 +2,18 @@
 
 This extension provides a mechanism to create new slots.
 
+## Installation
+
+* Download an place the file(s) in a directory called `WSSlots` in your `extensions/` folder.
+* Run Composer to install PHP dependencies, by issuing `composer install --no-dev` in the extension directory.
+* Add the following code to the bottom of your LocalSettings.php:
+
+    ```php
+    wfLoadExtension( 'WSSlots' );
+    ```
+
+* Done - Navigate to Special:Version on your wiki to verify that the extension is successfully installed.
+
 ## Configuration
 
 The extension provides the following configuration options:
@@ -33,9 +45,9 @@ This is the default content model to use, if no content model is given explicitl
 
 This is the default slot role layout to use, if no slot role layout is given explicitly.
 
-### `$wgWSSlotsSlotsToAppend`
+### `$wgWSSlotsSemanticSlots`
 
-This configuration option specifies from which slots the content should be appended when a page is parsed. It is an array of slot names. Please note that the content will be appended for each parse of the page.
+This configuration parameter defines which slots should be analysed for semantic annotations.
 
 ### `$wgWSSlotsDoPurge`
 
