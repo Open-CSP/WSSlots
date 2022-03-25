@@ -111,7 +111,7 @@ class ParserFirstCallInitHookHandler implements ParserFirstCallInitHook {
 
 		$title = \Title::newFromText( $page_name );
 
-		if ( !$title->exists() ) {
+		if ( $title === null || !$title->exists() ) {
 			return false;
 		}
 
