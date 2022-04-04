@@ -4,7 +4,9 @@
   "description": "This extension provides a mechanism to create new slots.",
   "keywords": [ "slots" ],
   "license": "GPL-2.0-or-later",
-  "require": {},
+  "require": {
+    "wikibase-solutions/mediawiki-template-parser": "^1.0"
+  },
   "require-dev": {
     "mediawiki/mediawiki-codesniffer": "34.0.0",
     "mediawiki/minus-x": "1.1.0",

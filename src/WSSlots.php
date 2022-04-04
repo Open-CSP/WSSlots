@@ -8,6 +8,11 @@ use ContentHandler;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRoleRegistry;
 use MediaWiki\Storage\SlotRecord;
+use MWException;
+use RequestContext;
+use SMW\ParserData;
+use SMW\SemanticData;
+use SMW\Store;
 use TextContent;
 use User;
 use WikiPage;
@@ -33,7 +38,7 @@ abstract class WSSlots {
 	 * @return true|array True on success, and an error message with an error code otherwise
 	 *
 	 * @throws \MWContentSerializationException Should not happen
-	 * @throws \MWException Should not happen
+	 * @throws MWException Should not happen
 	 */
 	public static function editSlot(
 		User $user,
@@ -138,14 +143,64 @@ abstract class WSSlots {
 		return $revision_record->getContent( $slot );
 	}
 
+    /**
+     * Hook to extend the SemanticData object before the update is completed.
+     *
+     * @link https://github.com/SemanticMediaWiki/SemanticMediaWiki/blob/master/docs/technical/hooks/hook.store.beforedataupdatecomplete.md
+     *
+     * @param Store $store
+     * @param SemanticData $semanticData
+     * @return bool
+     */
+	public static function onBeforeDataUpdateComplete( Store $store, SemanticData $semanticData ): bool {
+        $subjectTitle = $semanticData->getSubject()->getTitle();
+
+        if ( $subjectTitle === null ) {
+            return true;
+        }
+
+        $semanticSlots = RequestContext::getMain()->getConfig()->get('WSSlotsSemanticSlots');
+
+        try {
+            $wikiPage = WikiPage::factory( $subjectTitle );
+        } catch ( MWException $exception ) {
+            return true;
+        }
+
+        $revision = $wikiPage->getRevisionRecord();
+
+        foreach ( $semanticSlots as $slot ) {
+            if ( !$revision->hasSlot( $slot ) ) {
+                continue;
+            }
+
+            $content = $revision->getContent( $slot );
+
+            if ( $content === null ) {
+                continue;
+            }
+
+            $parserOutput = $content->getParserOutput( $subjectTitle, $revision->getId() );
+            $slotSemanticData = $parserOutput->getExtensionData( ParserData::DATA_ID );
+
+            if ( $slotSemanticData === null ) {
+                continue;
+            }
+
+            $semanticData->importDataFrom( $slotSemanticData );
+        }
+
+        return true;
+    }
+
 	/**
 	 * Performs a refresh if necessary.
 	 *
 	 * @param WikiPage $wikipage_object
 	 * @param User $user
-	 * @throws \MWException
+	 * @throws MWException
 	 */
-	public static function refreshData( WikiPage $wikipage_object, User $user ) {
+	private static function refreshData( WikiPage $wikipage_object, User $user ) {
 		$config = MediaWikiServices::getInstance()->getMainConfig();
 
 		if ( !$config->get( "WSSlotsDoPurge" ) ) {

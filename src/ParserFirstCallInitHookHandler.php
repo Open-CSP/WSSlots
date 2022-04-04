@@ -2,11 +2,13 @@
 
 namespace WSSlots;
 
+use ComplexArray;
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MWException;
 use Parser;
 use RequestContext;
 use TextContent;
+use WikibaseSolutions\MediaWikiTemplateParser\Parser as TemplateParser;
 
 /**
  * Class ParserFirstCallInitHookHandler
@@ -39,17 +41,17 @@ class ParserFirstCallInitHookHandler implements ParserFirstCallInitHook {
 		$wikipage = self::getWikiPage( $page_name );
 
 		if ( !$wikipage ) {
-			return "";
+			return '';
 		}
 
 		$content_object = WSSlots::getSlotContent($wikipage, $slot_name);
 
 		if ( $content_object === null ) {
-			return "";
+			return '';
 		}
 
 		if ( !( $content_object instanceof TextContent ) ) {
-			return "";
+			return '';
 		}
 
 		$content = $content_object->serialize();
@@ -72,32 +74,32 @@ class ParserFirstCallInitHookHandler implements ParserFirstCallInitHook {
 	 */
 	public static function getSlotTemplates( Parser $parser, string $slot_name, string $page_name = null, string $array_name = null ): string {
 		if ( !class_exists( "\ComplexArray" ) ) {
-			return "";
+			return 'ComplexArrays is required for this functionality.';
 		}
 
 		$wikipage = self::getWikiPage( $page_name );
 
 		if ( !$wikipage ) {
-			return "";
+			return '';
 		}
 
 		$content_object = WSSlots::getSlotContent($wikipage, $slot_name);
 
 		if ( $content_object === null ) {
-			return "";
+			return '';
 		}
 
 		if ( !( $content_object instanceof TextContent ) ) {
-			return "";
+			return '';
 		}
 
 		$slot_content = $content_object->serialize();
-		$parsed_content = (new ArticleParser())->parseArticle($slot_content);
+		$parsed_content = (new TemplateParser())->parseArticle($slot_content);
 
 		// Create a new WSArray with the parsed content
-		$GLOBALS['wfDefinedArraysGlobal'][$array_name] = new \ComplexArray( $parsed_content );
+		$GLOBALS['wfDefinedArraysGlobal'][$array_name] = new ComplexArray( $parsed_content );
 
-		return "";
+		return '';
 	}
 
 	private static function getWikiPage( string $page_name = null ) {
