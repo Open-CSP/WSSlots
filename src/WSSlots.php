@@ -49,13 +49,30 @@ abstract class WSSlots {
 		bool $append = false,
         string $watchlist = ""
 	) {
+		$logger = Logger::getLogger();
+
 		$title_object = $wikipage_object->getTitle();
 		$page_updater = $wikipage_object->newPageUpdater( $user );
 		$old_revision_record = $wikipage_object->getRevisionRecord();
 		$slot_role_registry = MediaWikiServices::getInstance()->getSlotRoleRegistry();
 
+		if ($title_object === null) {
+			$logger->alert('The WikiPage object given to editSlot is not valid, since it does not contain a Title');
+			return [wfMessage( "wsslots-error-invalid-wikipage-object")];
+		}
+
+		$logger->debug('Editing slot {slotName} on page {page}', [
+			'slotName' => $slot_name,
+			'page' => $title_object->getFullText()
+		]);
+
 		// Make sure the slot we are editing exists
 		if ( !$slot_role_registry->isDefinedRole( $slot_name ) ) {
+			$logger->alert('Tried to edit non-existent slot {slotName} on page {page}', [
+				'slotName' => $slot_name,
+				'page' => $title_object->getFullText()
+			]);
+
 			return [wfMessage( "wsslots-apierror-unknownslot", $slot_name ), "unknownslot"];
 		}
 
@@ -68,6 +85,13 @@ abstract class WSSlots {
 				if ( !( $content instanceof TextContent ) ) {
 					$slot_content_handler = $content->getContentHandler();
 					$model_id = $slot_content_handler->getModelID();
+
+					$logger->alert('Tried to append to slot {slotName} with non-textual content model {modelId} while editing page {page}', [
+						'slotName' => $slot_name,
+						'modelId' => $model_id,
+						'page' => $title_object->getFullText()
+					]);
+
 					return [wfMessage( "apierror-appendnotsupported" ), $model_id];
 				}
 
@@ -79,6 +103,10 @@ abstract class WSSlots {
 
 		if ( $text === "" && $slot_name !== SlotRecord::MAIN ) {
 			// Remove the slot if $text is empty and the slot name is not MAIN
+			$logger->debug('Removing slot {slotName} since it is empty', [
+				'slotName' => $slot_name
+			]);
+
 			$page_updater->removeSlot( $slot_name );
 		} else {
 			// Set the content for the slot we want to edit
@@ -94,12 +122,16 @@ abstract class WSSlots {
 					->getDefaultModel( $title_object );
 			}
 
+			$logger->debug('Setting content in PageUpdater');
+
 			$slot_content = ContentHandler::makeContent( $text, $title_object, $model_id );
 			$page_updater->setContent( $slot_name, $slot_content );
 		}
 
-		if ( $old_revision_record === null ) {
+		if ( $old_revision_record === null && $slot_name !== SlotRecord::MAIN ) {
 			// The 'main' content slot MUST be set when creating a new page
+			$logger->debug('Setting empty "main" slot');
+
 			$main_content = ContentHandler::makeContent("", $title_object);
 			$page_updater->setContent( SlotRecord::MAIN, $main_content );
 		}
@@ -115,9 +147,14 @@ abstract class WSSlots {
             $flags |= EDIT_SUPPRESS_RC;
         }
 
+		$logger->debug('Calling saveRevision on PageUpdater');
 		$page_updater->saveRevision( $comment, $flags );
+		$logger->debug('Finished calling saveRevision on PageUpdater');
 
 		if ( !$page_updater->isUnchanged() ) {
+			$logger->debug('Refreshing data for page {page}', [
+				'page' => $title_object->getFullText()
+			]);
 			self::refreshData( $wikipage_object, $user );
 		}
 
