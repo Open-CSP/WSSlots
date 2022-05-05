@@ -6,7 +6,6 @@ use CommentStoreComment;
 use Content;
 use ContentHandler;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Revision\SlotRoleRegistry;
 use MediaWiki\Storage\SlotRecord;
 use MWException;
 use RequestContext;
@@ -222,6 +221,14 @@ abstract class WSSlots {
 
             if ( $slotSemanticData === null ) {
                 continue;
+            }
+
+            // Remove any pre-defined properties that exist in both the main semantic data as well as the slot semantic
+            // data from the main semantic data to prevent them from merging
+            foreach ( $slotSemanticData->getProperties() as $property ) {
+                if ( !$property->isUserDefined() ) {
+                    $semanticData->removeProperty( $property );
+                }
             }
 
             $semanticData->importDataFrom( $slotSemanticData );
