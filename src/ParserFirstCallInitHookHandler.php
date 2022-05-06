@@ -3,6 +3,7 @@
 namespace WSSlots;
 
 use ComplexArray;
+use Error;
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MWException;
 use Parser;
@@ -101,7 +102,12 @@ class ParserFirstCallInitHookHandler implements ParserFirstCallInitHook {
 		$slot_content = $content_object->serialize();
 
 		if ( !empty( $recursive ) ) {
-			$parsed_content = (new RecursiveParser())->parse( $slot_content );
+            try {
+                $parsed_content = (new RecursiveParser())->parse( $slot_content );
+            } catch ( Error $error ) {
+                return 'Max recursion depth reached, aborted.';
+            }
+
 		} else {
 			$parsed_content = (new TemplateParser())->parseArticle( $slot_content );
 		}
