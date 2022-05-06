@@ -102,12 +102,11 @@ class ParserFirstCallInitHookHandler implements ParserFirstCallInitHook {
 		$slot_content = $content_object->serialize();
 
 		if ( !empty( $recursive ) ) {
-            try {
-                $parsed_content = (new RecursiveParser())->parse( $slot_content );
-            } catch ( Error $error ) {
-                return 'Max recursion depth reached, aborted.';
-            }
-
+			try {
+				$parsed_content = (new RecursiveParser())->parse( $slot_content );
+			} catch ( Error $error ) {
+				return 'Max recursion depth reached, aborted.';
+			}
 		} else {
 			$parsed_content = (new TemplateParser())->parseArticle( $slot_content );
 		}

@@ -55,6 +55,16 @@ This configuration option specifies whether to purge the page after a slot edit 
 
 ## Parser functions
 
+### `#slot`
 The extension provides the `#slot` parser function to get the content of a specific slot. For example, `{{#slot: main}}` returns the content of the `main` slot. You can optionally specify a page as the second parameter. For instance, `{{#slot: main | Foobar }}` gets the `main` slot from the page `Foobar`. An additional third parameter can be set to anything to have the returned content parsed.
 
-The extension also provides the `#slottemplates` parser function that returns the templates in a specific slot as a multidimensional array. This parser function required WSArrays to be installed. For example, `{{#slottemplates: main | Foobar | foo }}` creates a multidimensional array `foo` with the templates in the `main` slot of the page `Foobar`. If no page is given, the current page is fetched.
+### `#slottemplates`
+The extension also provides the `#slottemplates` parser function that returns the templates in a specific slot as a multidimensional array. This parser function required WSArrays to be installed.
+
+The parser function has two modes of operation. It can either process templates non-recursively (DEPRECATED), or it can process them recursively (RECOMMENDED). With the non-recursive parser function, multiple templates with the same name are not supported and nested template calls are not processed. With recursive parsing, this is supported. Recursive parsing also supports retrieving the original unparsed content of an argument.
+
+The syntax of the parser function is as follows:
+
+```
+{{#slottemplates: <slotname> | <pagename> | <arrayname> | <recursive> }}
+```
