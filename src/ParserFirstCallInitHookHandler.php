@@ -9,6 +9,10 @@ use Parser;
 use RequestContext;
 use TextContent;
 use WikibaseSolutions\MediaWikiTemplateParser\Parser as TemplateParser;
+use WikibaseSolutions\MediaWikiTemplateParser\RecursiveParser;
+use WikiCategoryPage;
+use WikiFilePage;
+use WikiPage;
 
 /**
  * Class ParserFirstCallInitHookHandler
@@ -35,6 +39,7 @@ class ParserFirstCallInitHookHandler implements ParserFirstCallInitHook {
 	 * @param Parser $parser
 	 * @param string $slot_name
 	 * @param string|null $page_name
+	 * @param string|null $parse
 	 * @return string|array
 	 */
 	public static function getSlotContent( Parser $parser, string $slot_name, string $page_name = null, string $parse = null ) {
@@ -69,12 +74,16 @@ class ParserFirstCallInitHookHandler implements ParserFirstCallInitHook {
 	 * @param Parser $parser
 	 * @param string $slot_name
 	 * @param string|null $page_name
-	 * @param string $array_name
+	 * @param string|null $array_name
 	 * @return string
 	 */
-	public static function getSlotTemplates( Parser $parser, string $slot_name, string $page_name = null, string $array_name = null ): string {
+	public static function getSlotTemplates( Parser $parser, string $slot_name, string $page_name = null, string $array_name = null, string $recursive = null ): string {
 		if ( !class_exists( "\ComplexArray" ) ) {
 			return 'ComplexArrays is required for this functionality.';
+		}
+
+		if ( !$page_name || !$array_name ) {
+			return '';
 		}
 
 		$wikipage = self::getWikiPage( $page_name );
@@ -85,16 +94,17 @@ class ParserFirstCallInitHookHandler implements ParserFirstCallInitHook {
 
 		$content_object = WSSlots::getSlotContent($wikipage, $slot_name);
 
-		if ( $content_object === null ) {
-			return '';
-		}
-
-		if ( !( $content_object instanceof TextContent ) ) {
+		if ( !$content_object instanceof TextContent ) {
 			return '';
 		}
 
 		$slot_content = $content_object->serialize();
-		$parsed_content = (new TemplateParser())->parseArticle($slot_content);
+
+		if ( !empty( $recursive ) ) {
+			$parsed_content = (new RecursiveParser())->parse( $slot_content );
+		} else {
+			$parsed_content = (new TemplateParser())->parseArticle( $slot_content );
+		}
 
 		// Create a new WSArray with the parsed content
 		$GLOBALS['wfDefinedArraysGlobal'][$array_name] = new ComplexArray( $parsed_content );
@@ -102,6 +112,11 @@ class ParserFirstCallInitHookHandler implements ParserFirstCallInitHook {
 		return '';
 	}
 
+	/**
+	 * @param string|null $page_name
+	 * @return false|WikiCategoryPage|WikiFilePage|WikiPage|null
+	 * @throws MWException
+	 */
 	private static function getWikiPage( string $page_name = null ) {
 		if ( !$page_name ) {
 			try {
@@ -117,6 +132,6 @@ class ParserFirstCallInitHookHandler implements ParserFirstCallInitHook {
 			return false;
 		}
 
-		return \WikiPage::factory( $title );
+		return WikiPage::factory( $title );
 	}
 }
