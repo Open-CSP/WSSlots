@@ -16,17 +16,6 @@ use WikiPage;
  */
 class ApiEditSlot extends ApiBase {
 	/**
-	 * ApiEditSlot constructor.
-	 *
-	 * @param ApiMain $mainModule
-	 * @param string $moduleName
-	 * @param string $modulePrefix
-	 */
-	public function __construct( ApiMain $mainModule, $moduleName, $modulePrefix = '' ) {
-		parent::__construct( $mainModule, $moduleName, $modulePrefix );
-	}
-
-	/**
 	 * @inheritDoc
 	 *
 	 * @throws ApiUsageException
