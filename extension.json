@@ -1,6 +1,6 @@
 {
   "name": "WSSlots",
-  "version": "2.2.0",
+  "version": "3.0.0",
   "namemsg": "wsslots-extensionname",
   "url": "https://wikibase-solutions.com",
   "type": "other",
@@ -21,21 +21,16 @@
     "WSSlots\\": "src/"
   },
   "Hooks": {
-    "MediaWikiServices": "MediaWikiServicesHookHandler",
-    "ParserFirstCallInit": "ParserFirstCallInitHookHandler",
-    "ListDefinedTags": "TagsHookHandler",
-    "ChangeTagsListActive": "TagsHookHandler",
-    "SMW::Store::BeforeDataUpdateComplete": "\\WSSlots\\WSSlots::onBeforeDataUpdateComplete"
+    "MediaWikiServices": "main",
+    "ParserFirstCallInit": "main",
+    "ListDefinedTags": "main",
+    "ChangeTagsListActive": "main",
+    "SMW::Store::BeforeDataUpdateComplete": "\\WSSlots\\WSSlotsHooks::onBeforeDataUpdateComplete",
+    "ScribuntoExternalLibraries": "\\WSSlots\\WSSlotsHooks::onScribuntoExternalLibraries"
   },
   "HookHandlers": {
-    "MediaWikiServicesHookHandler": {
-      "class": "WSSlots\\MediaWikiServicesHookHandler"
-    },
-    "ParserFirstCallInitHookHandler": {
-      "class": "WSSlots\\ParserFirstCallInitHookHandler"
-    },
-    "TagsHookHandler": {
-      "class": "WSSlots\\TagsHookHandler"
+    "main": {
+      "class": "WSSlots\\WSSlotsHooks"
     }
   },
   "ExtensionMessagesFiles": {

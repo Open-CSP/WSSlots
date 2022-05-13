@@ -36,7 +36,7 @@ class Logger {
 	/**
 	 * @var LoggerInterface An instance of a logger
 	 */
-	private static $loggerInstance;
+	private static LoggerInterface $loggerInstance;
 
 	/**
 	 * Returns the logger instance.
