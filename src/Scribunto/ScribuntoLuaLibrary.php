@@ -19,11 +19,37 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
      */
     public function register(): void {
         $interfaceFuncs = [
+            'slotContent' => [ $this, 'slotContent' ],
             'slotTemplates' => [ $this, 'slotTemplates' ]
         ];
 
         $this->getEngine()->registerInterface( __DIR__ . '/' . 'mw.wsslots.lua', $interfaceFuncs, [] );
     }
+
+    /**
+     * This mirrors the functionality of the #slot parser function and makes it available in Lua.
+     *
+     * @param string $slotName
+     * @param string|null $pageName
+     * @return array
+     * @throws MWException
+     */
+    public function slotContent( string $slotName, ?string $pageName = null ): array {
+        $wikiPage = $this->getWikiPage( $pageName );
+
+        if ( !$wikiPage ) {
+            return [ null ];
+        }
+
+        $contentObject = WSSlots::getSlotContent( $wikiPage, $slotName );
+
+        if ( !$contentObject instanceof TextContent ) {
+            return [ null ];
+        }
+
+        return [ $contentObject->serialize() ];
+    }
+
 
     /**
      * This mirrors the functionality of the #slottemplates parser function and makes it available

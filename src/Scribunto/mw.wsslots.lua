@@ -24,10 +24,18 @@ function slots.setupInterface()
     package.loaded['mw.slots'] = slots
 end
 
+function slots.slotContent( slotName, pageName )
+    if not type( slotName ) == 'string' or not type( pageName ) == 'string' or not type( pageName ) == 'nil' then
+        error( 'Invalid parameter type supplied to mw.slots.slotContent()' )
+    end
+
+    return php.slotContent( slotName, pageName )
+end
+
 -- slotTemplates
 function slots.slotTemplates( slotName, pageName )
     if not type( slotName ) == 'string' or not type( pageName ) == 'string' or not type( pageName ) == 'nil' then
-        error( 'Invalid parameter type supplied to slots.slotTemplates()' )
+        error( 'Invalid parameter type supplied to mw.slots.slotTemplates()' )
     end
 
     return php.slotTemplates( slotName, pageName )
