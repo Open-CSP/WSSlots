@@ -84,19 +84,19 @@ class ParserFirstCallInitHookHandler implements ParserFirstCallInitHook {
 		}
 
 		if ( !$page_name || !$array_name ) {
-			return '';
+			return 'Missing page or array name';
 		}
 
 		$wikipage = self::getWikiPage( $page_name );
 
 		if ( !$wikipage ) {
-			return '';
+			return 'Invalid page name ' . $page_name;
 		}
 
 		$content_object = WSSlots::getSlotContent($wikipage, $slot_name);
 
 		if ( !$content_object instanceof TextContent ) {
-			return '';
+			return 'The content model for the page ' . $page_name . ' is not text';
 		}
 
 		$slot_content = $content_object->serialize();
