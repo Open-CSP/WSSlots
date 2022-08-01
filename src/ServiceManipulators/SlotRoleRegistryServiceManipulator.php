@@ -1,11 +1,12 @@
 <?php
 
-namespace WSSlots;
+namespace WSSlots\ServiceManipulators;
 
 use Config;
 use ConfigException;
 use MediaWiki\Revision\SlotRoleRegistry;
 use Psr\Log\LoggerInterface;
+use WSSlots\Logger;
 
 /**
  * Class SlotRegistryServiceManipulator
@@ -18,12 +19,12 @@ class SlotRoleRegistryServiceManipulator {
 	/**
 	 * @var Config The Config to use
 	 */
-	private $config;
+	private Config $config;
 
 	/**
 	 * @var LoggerInterface The logger to send log messages to
 	 */
-	private $logger;
+	private LoggerInterface $logger;
 
 	/**
 	 * SlotRoleRegistryServiceManipulator constructor.
@@ -43,64 +44,61 @@ class SlotRoleRegistryServiceManipulator {
 	 */
 	public function defineRoles( SlotRoleRegistry $registry ) {
 		try {
-			$defined_slots = $this->config->get( "WSSlotsDefinedSlots" );
-			if ( !is_array( $defined_slots ) ) {
+			$definedSlots = $this->config->get( "WSSlotsDefinedSlots" );
+
+			if ( !is_array( $definedSlots ) ) {
 				throw new ConfigException();
 			}
-			/** @var array $defined_slots */
 		} catch ( ConfigException $exception ) {
 			$this->logger->critical( "Missing or invalid value for \$wgWSSlotsDefinedSlots." );
-			$defined_slots = [];
+			$definedSlots = [];
 		}
 
 		try {
-			$default_content_model = $this->config->get( "WSSlotsDefaultContentModel" );
-			if ( !is_string( $default_content_model ) ) {
+			$defaultContentModel = $this->config->get( "WSSlotsDefaultContentModel" );
+
+			if ( !is_string( $defaultContentModel ) ) {
 				throw new ConfigException();
 			}
-			/** @var string $default_content_model */
 		} catch ( ConfigException $exception ) {
 			$this->logger->critical( "Missing or invalid value for \$wgWSSlotsDefaultContentModel." );
-			$default_content_model = "wikitext";
+			$defaultContentModel = "wikitext";
 		}
 
 		try {
-			$default_slot_role_layout = $this->config->get( "WSSlotsDefaultSlotRoleLayout" );
-			if ( !is_array( $default_slot_role_layout ) ) {
+			$defaultSlotRoleLayout = $this->config->get( "WSSlotsDefaultSlotRoleLayout" );
+
+			if ( !is_array( $defaultSlotRoleLayout ) ) {
 				throw new ConfigException();
 			}
-			/** @var array $default_slot_role_layout */
 		} catch ( ConfigException $exception ) {
 			$this->logger->critical( "Missing or invalid value for \$wgWSSlotsDefaultSlotRoleLayout." );
-			$default_slot_role_layout = [
+			$defaultSlotRoleLayout = [
 				"display" => "none",
 				"region" => "center",
 				"placement" => "append"
 			];
 		}
 
-		foreach ( $defined_slots as $key => $value ) {
+		foreach ( $definedSlots as $key => $value ) {
 			if ( is_string( $key ) && is_array( $value ) && $value !== [] ) {
-				$slot_name = $key;
-				$slot_settings = $value;
+				$slotName = $key;
+				$slotSettings = $value;
 			} elseif ( is_int( $key ) && is_string( $value ) ) {
-				$slot_name = $value;
-				$slot_settings = [];
+				$slotName = $value;
+				$slotSettings = [];
 			} else {
 				// This slot definition is invalid
 				$this->logger->critical( "Invalid slot definition!" );
 				continue;
 			}
 
-			$slot_settings["content_model"] = $slot_settings["content_model"] ?? $default_content_model;
-			$slot_settings["slot_role_layout"] = $slot_settings["slot_role_layout"] ?? $default_slot_role_layout;
+			$slotSettings["content_model"] = $slotSettings["content_model"] ?? $defaultContentModel;
+			$slotSettings["slot_role_layout"] = $slotSettings["slot_role_layout"] ?? $defaultSlotRoleLayout;
 
-			// Define the role with the given settings
-			$this->defineRole(
-				$registry,
-				$slot_name,
-				$slot_settings
-			);
+            if ( !$registry->isDefinedRole( $slotName ) ) {
+                $registry->defineRoleWithModel( $slotName, $slotSettings["content_model"], $slotSettings["slot_role_layout"] );
+            }
 		}
 	}
 
@@ -118,15 +116,7 @@ class SlotRoleRegistryServiceManipulator {
 		string $slot_name,
 		array $slot_settings
 	): bool {
-		if ( $registry->isDefinedRole( $slot_name ) ) {
-			$this->logger->alert( "The slot role '$slot_name' has already been defined, skipping." );
-			return false;
-		}
 
-		$content_model = $slot_settings["content_model"];
-		$slot_role_layout = $slot_settings["slot_role_layout"];
-
-		$registry->defineRoleWithModel( $slot_name, $content_model, $slot_role_layout );
 
 		return true;
 	}
