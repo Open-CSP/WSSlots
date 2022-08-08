@@ -58,7 +58,8 @@
     }
   },
   "APIModules": {
-    "editslot": "WSSlots\\ApiEditSlot"
+    "editslot": "WSSlots\\ApiEditSlot",
+    "parsetemplates": "WSSlots\\ApiParseTemplates"
   },
   "manifest_version": 2,
   "load_composer_autoloader": true
