@@ -1,17 +1,15 @@
 <?php
 
-namespace WSSlots;
+namespace WSSlots\API;
 
 use ApiBase;
-use ApiMain;
 use ApiUsageException;
 use MediaWiki\Storage\SlotRecord;
 use MWContentSerializationException;
 use MWException;
-use Title;
-use User;
 use Wikimedia\ParamValidator\ParamValidator;
-use WikiPage;
+use WSSlots\Logger;
+use WSSlots\WSSlots;
 
 /**
  * A slot-aware module that allows for editing and creating pages.
