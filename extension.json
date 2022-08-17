@@ -1,6 +1,6 @@
 {
   "name": "WSSlots",
-  "version": "4.0.0",
+  "version": "4.1.0",
   "namemsg": "wsslots-extensionname",
   "url": "https://wikibase-solutions.com",
   "type": "other",
@@ -58,8 +58,9 @@
     }
   },
   "APIModules": {
-    "editslot": "WSSlots\\ApiEditSlot",
-    "parsetemplates": "WSSlots\\ApiParseTemplates"
+    "parsetemplates": "WSSlots\\API\\ApiParseTemplates",
+    "editslot": "WSSlots\\API\\ApiEditSlot",
+    "readslot": "WSSlots\\API\\ApiReadSlot"
   },
   "manifest_version": 2,
   "load_composer_autoloader": true

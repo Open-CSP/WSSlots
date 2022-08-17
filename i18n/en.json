@@ -21,7 +21,13 @@
   "apihelp-parsetemplates-param-pageid": "Page ID of the page to parse. Cannot be used together with title or oldid.",
   "apihelp-parsetemplates-param-oldid": "Revision ID of the content to parse. Cannot be used together with title or pageid.",
   "apihelp-parsetemplates-param-slot": "The name of the slot to parse.",
+  "apihelp-readslot-summary": "Read slots on pages.",
+  "apihelp-readslot-param-title": "Title of the page to read. Cannot be used together with pageid.",
+  "apihelp-readslot-param-pageid": "Page ID of the page to read. Cannot be used together with title.",
+  "apihelp-readslot-param-slot": "The name of the slot to read.",
   "wsslots-apierror-unknownslot": "Unknown slot '$1'.",
+  "wsslots-apierror-slotdoesnotexist": "The slot '$1' does not exist on page '$2'.",
+  "wsslots-apierror-nottext": "The content model '$1' cannot be returned, because it is not text.",
   "wsslots-error-invalid-wikipage-object": "The given WikiPage object is not valid, since it does not have a Title.",
   "tag-wsslots-slot-edit": "Metadata slot edit",
   "tag-wsslots-slot-edit-description": "Edit made using WSSlots"

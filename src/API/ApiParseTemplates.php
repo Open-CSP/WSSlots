@@ -1,6 +1,6 @@
 <?php
 
-namespace WSSlots;
+namespace WSSlots\API;
 
 use ApiBase;
 use ApiUsageException;
