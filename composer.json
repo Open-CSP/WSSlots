@@ -1,5 +1,5 @@
 {
-  "name": "wikibase-solutions/w-s-slots",
+  "name": "open-csp/w-s-slots",
   "type": "mediawiki-extension",
   "description": "This extension provides a mechanism to create new slots.",
   "keywords": [ "slots" ],
