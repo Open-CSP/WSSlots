@@ -96,7 +96,7 @@ class WSSlotsHooks implements
             return true;
         }
 
-        $semanticSlots = RequestContext::getMain()->getConfig()->get('WSSlotsSemanticSlots');
+        $semanticSlots = RequestContext::getMain()->getConfig()->get( 'WSSlotsSemanticSlots' );
 
         try {
             $wikiPage = WikiPage::factory( $subjectTitle );
@@ -104,7 +104,17 @@ class WSSlotsHooks implements
             return true;
         }
 
+        if ( !$wikiPage instanceof WikiPage ) {
+            // Page does not exist (anymore)
+            return true;
+        }
+
         $revision = $wikiPage->getRevisionRecord();
+
+        if ( $revision === null ) {
+            // Page does not exist (anymore)
+            return true;
+        }
 
         foreach ( $semanticSlots as $slot ) {
             if ( !$revision->hasSlot( $slot ) ) {
