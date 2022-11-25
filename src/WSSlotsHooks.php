@@ -118,9 +118,17 @@ class WSSlotsHooks implements
             }
 
             $parserOutput = $content->getParserOutput( $subjectTitle, $revision->getId() );
+
+            /** @var SemanticData $slotSemanticData */
             $slotSemanticData = $parserOutput->getExtensionData( ParserData::DATA_ID );
 
             if ( $slotSemanticData === null ) {
+                continue;
+            }
+
+            if ( !$semanticData->getSubject()->equals( $slotSemanticData->getSubject() ) ) {
+                // This would throw an exception in "importDataFrom" otherwise
+                // TODO: Figure out the root cause of why the subject of a slot does not equal the subject of the main slot
                 continue;
             }
 
