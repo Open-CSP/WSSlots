@@ -28,7 +28,7 @@ class WSSlots {
 	 * @param string $slotName The slot to edit
 	 * @param string $summary The summary to use
 	 * @param bool $append Whether to append to or replace the current text
-     * @param string $watchlist Set to "nochange" to suppress watchlist notifications
+	 * @param string $watchlist Set to "nochange" to suppress watchlist notifications
 	 *
 	 * @return true|array True on success, or an error message with an error code otherwise
 	 *
@@ -36,13 +36,13 @@ class WSSlots {
 	 * @throws MWException Should not happen
 	 */
 	final public static function editSlot(
-		User     $user,
+		User $user,
 		WikiPage $wikiPage,
-		string   $text,
-		string   $slotName,
-		string   $summary,
-		bool     $append = false,
-        string   $watchlist = ""
+		string $text,
+		string $slotName,
+		string $summary,
+		bool $append = false,
+		string $watchlist = ""
 	) {
 		$logger = Logger::getLogger();
 
@@ -52,23 +52,23 @@ class WSSlots {
 		$slotRoleRegistry = MediaWikiServices::getInstance()->getSlotRoleRegistry();
 
 		if ( $titleObject === null ) {
-			$logger->alert('The WikiPage object given to editSlot is not valid, since it does not contain a Title');
-			return [wfMessage( "wsslots-error-invalid-wikipage-object")];
+			$logger->alert( 'The WikiPage object given to editSlot is not valid, since it does not contain a Title' );
+			return [ wfMessage( "wsslots-error-invalid-wikipage-object" ) ];
 		}
 
-		$logger->debug('Editing slot {slotName} on page {page}', [
+		$logger->debug( 'Editing slot {slotName} on page {page}', [
 			'slotName' => $slotName,
 			'page' => $titleObject->getFullText()
-		]);
+		] );
 
 		// Make sure the slot we are editing exists
 		if ( !$slotRoleRegistry->isDefinedRole( $slotName ) ) {
-			$logger->alert('Tried to edit non-existent slot {slotName} on page {page}', [
+			$logger->alert( 'Tried to edit non-existent slot {slotName} on page {page}', [
 				'slotName' => $slotName,
 				'page' => $titleObject->getFullText()
-			]);
+			] );
 
-			return [wfMessage( "wsslots-apierror-unknownslot", $slotName ), "unknownslot"];
+			return [ wfMessage( "wsslots-apierror-unknownslot", $slotName ), "unknownslot" ];
 		}
 
 		// Alter $text when the $append parameter is set
@@ -81,13 +81,13 @@ class WSSlots {
 					$slotContentHandler = $content->getContentHandler();
 					$modelId = $slotContentHandler->getModelID();
 
-					$logger->alert('Tried to append to slot {slotName} with non-textual content model {modelId} while editing page {page}', [
+					$logger->alert( 'Tried to append to slot {slotName} with non-textual content model {modelId} while editing page {page}', [
 						'slotName' => $slotName,
 						'modelId' => $modelId,
 						'page' => $titleObject->getFullText()
-					]);
+					] );
 
-					return [wfMessage( "apierror-appendnotsupported" ), $modelId];
+					return [ wfMessage( "apierror-appendnotsupported" ), $modelId ];
 				}
 
 				/** @var string $text */
@@ -98,9 +98,9 @@ class WSSlots {
 
 		if ( $text === "" && $slotName !== SlotRecord::MAIN ) {
 			// Remove the slot if $text is empty and the slot name is not MAIN
-			$logger->debug('Removing slot {slotName} since it is empty', [
+			$logger->debug( 'Removing slot {slotName} since it is empty', [
 				'slotName' => $slotName
-			]);
+			] );
 
 			$pageUpdater->removeSlot( $slotName );
 		} else {
@@ -117,7 +117,7 @@ class WSSlots {
 					->getDefaultModel( $titleObject );
 			}
 
-			$logger->debug('Setting content in PageUpdater');
+			$logger->debug( 'Setting content in PageUpdater' );
 
 			$slotContent = ContentHandler::makeContent( $text, $titleObject, $modelId );
 			$pageUpdater->setContent( $slotName, $slotContent );
@@ -125,9 +125,9 @@ class WSSlots {
 
 		if ( $oldRevisionRecord === null && $slotName !== SlotRecord::MAIN ) {
 			// The 'main' content slot MUST be set when creating a new page
-			$logger->debug('Setting empty "main" slot');
+			$logger->debug( 'Setting empty "main" slot' );
 
-			$main_content = ContentHandler::makeContent("", $titleObject);
+			$main_content = ContentHandler::makeContent( "", $titleObject );
 			$pageUpdater->setContent( SlotRecord::MAIN, $main_content );
 		}
 
@@ -135,34 +135,34 @@ class WSSlots {
 			$pageUpdater->addTag( 'wsslots-slot-edit' );
 		}
 
-        $flags = EDIT_INTERNAL;
+		$flags = EDIT_INTERNAL;
 		$comment = CommentStoreComment::newUnsavedComment( $summary );
 
-        if ( $watchlist === "nochange" ) {
-            $flags |= EDIT_SUPPRESS_RC;
-        }
+		if ( $watchlist === "nochange" ) {
+			$flags |= EDIT_SUPPRESS_RC;
+		}
 
-		$logger->debug('Calling saveRevision on PageUpdater');
+		$logger->debug( 'Calling saveRevision on PageUpdater' );
 		$pageUpdater->saveRevision( $comment, $flags );
-		$logger->debug('Finished calling saveRevision on PageUpdater');
+		$logger->debug( 'Finished calling saveRevision on PageUpdater' );
 
 		if ( !$pageUpdater->isUnchanged() && MediaWikiServices::getInstance()->getMainConfig()->get( "WSSlotsDoPurge" ) ) {
-			$logger->debug('Refreshing data for page {page}', [
+			$logger->debug( 'Refreshing data for page {page}', [
 				'page' => $titleObject->getFullText()
-			]);
+			] );
 
-            // Perform an additional null-edit to make sure all page properties are up-to-date
-            $comment = CommentStoreComment::newUnsavedComment( "");
-            $pageUpdater = $wikiPage->newPageUpdater( $user );
-            $pageUpdater->saveRevision( $comment, EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY );
+			// Perform an additional null-edit to make sure all page properties are up-to-date
+			$comment = CommentStoreComment::newUnsavedComment( "" );
+			$pageUpdater = $wikiPage->newPageUpdater( $user );
+			$pageUpdater->saveRevision( $comment, EDIT_SUPPRESS_RC | EDIT_AUTOSUMMARY );
 		}
 
 		return true;
 	}
 
 	/**
-     * Returns the content of the given slot.
-     *
+	 * Returns the content of the given slot.
+	 *
 	 * @param WikiPage $wikiPage
 	 * @param string $slot
 	 * @return Content|null The content in the given slot, or NULL if no content exists
