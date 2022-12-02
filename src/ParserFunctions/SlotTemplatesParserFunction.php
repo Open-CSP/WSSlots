@@ -14,6 +14,8 @@ use WikibaseSolutions\MediaWikiTemplateParser\Parser as DeprecatedParser;
 
 /**
  * Handles the #slottemplates parser function.
+ *
+ * @deprecated
  */
 class SlotTemplatesParserFunction {
     use WikiPageTrait;
