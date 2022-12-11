@@ -1,5 +1,10 @@
 <?php
 /**
+ * Modified version of https://github.com/wikimedia/mediawiki/blob/REL1_35/includes/actions/RawAction.php
+ * Fetches specific content slot if defined
+ * 
+ * ---------------
+ * 
  * Raw page text accessor
  *
  * Copyright © 2004 Gabriel Wicke <wicke@wikidev.net>
@@ -36,9 +41,9 @@ use MediaWiki\Revision\SlotRecord;
  *
  * @ingroup Actions
  */
-class RawAction extends FormlessAction {
+class SlotAwareRawAction extends FormlessAction {
 	public function getName() {
-		return 'raw';
+		return 'rawslot';
 	}
 
 	public function requiresWrite() {

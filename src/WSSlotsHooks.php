@@ -155,4 +155,28 @@ class WSSlotsHooks implements
 
         return true;
     }
+
+    /**
+     * Hook to extend the original RawAction on demand to fetch contents from a specific slot.
+     *
+     * @link https://www.mediawiki.org/wiki/Manual:Hooks/BeforeInitialize
+     *
+     * @param Title $title
+     * @param unused
+     * @param OutputPage $output
+     * @param User $user
+     * @param WebRequest $request
+     * @param MediaWiki $mediaWiki
+     * @return bool
+     */
+    public static function onBeforeInitialize( \Title &$title, $unused, \OutputPage $output, \User $user, \WebRequest $request, \MediaWiki $mediaWiki ) { 
+
+        $config = \MediaWiki\MediaWikiServices::getInstance()->getMainConfig();
+
+        #if enabled, we overwrite 'action=raw&slot=someslot' with 'action=rawslot&slot=someslot'
+        if ( $config->get( "WSSlotsOverrideRawAction" ) && $request->getText( 'action' ) === 'raw' && $request->getText( 'slot' )) {
+            $request->setVal( 'action', 'rawslot');
+		}
+        return true;
+    }
 }

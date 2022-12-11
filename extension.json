@@ -20,13 +20,17 @@
   "AutoloadNamespaces": {
     "WSSlots\\": "src/"
   },
+  "AutoloadClasses": {
+		"SlotAwareRawAction": "src/Action/SlotAwareRawAction.php"
+	},
   "Hooks": {
     "MediaWikiServices": "main",
     "ParserFirstCallInit": "main",
     "ListDefinedTags": "main",
     "ChangeTagsListActive": "main",
     "SMW::Store::BeforeDataUpdateComplete": "\\WSSlots\\WSSlotsHooks::onBeforeDataUpdateComplete",
-    "ScribuntoExternalLibraries": "\\WSSlots\\WSSlotsHooks::onScribuntoExternalLibraries"
+    "ScribuntoExternalLibraries": "\\WSSlots\\WSSlotsHooks::onScribuntoExternalLibraries",
+    "BeforeInitialize": "\\WSSlots\\WSSlotsHooks::onBeforeInitialize"
   },
   "HookHandlers": {
     "main": {
@@ -55,6 +59,9 @@
     },
     "WSSlotsDoPurge": {
       "value": false
+    },
+    "WSSlotsOverrideRawAction": {
+      "value": false
     }
   },
   "APIModules": {
@@ -62,6 +69,9 @@
     "editslot": "WSSlots\\API\\ApiEditSlot",
     "readslot": "WSSlots\\API\\ApiReadSlot"
   },
+  "Actions": {
+		"rawslot": "SlotAwareRawAction"
+	},
   "manifest_version": 2,
   "load_composer_autoloader": true
 }
