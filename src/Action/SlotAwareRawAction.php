@@ -193,7 +193,10 @@ class RawAction extends FormlessAction {
 			$request->response()->header( "Last-modified: $lastmod" );
 
 			// Public-only due to cache headers
-			$content = $rev->getContent( SlotRecord::MAIN );
+			// Fetch specific slot if defined
+			$slot = $this->getRequest()->getText( 'slot' );
+			if ( $slot ) {  $content = $rev->getContent($slot); }
+			else $content = $rev->getContent( SlotRecord::MAIN );
 
 			if ( $content === null ) {
 				// revision not found (or suppressed)
