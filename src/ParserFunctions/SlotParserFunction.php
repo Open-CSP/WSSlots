@@ -36,15 +36,13 @@ class SlotParserFunction {
 			return '';
 		}
 
-		$permErrors = MediaWikiServices::getInstance()
-			->getPermissionManager()
-			->getPermissionErrors(
-				'read',
-				$parser->getUser(),
-				$wikiPage->getTitle()
-			);
+		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
+			'read',
+			$parser->getUser(),
+			$wikiPage->getTitle()
+		);
 
-		if ( count( $permErrors ) > 0 ) {
+		if ( !$userCan ) {
 			// The user is not allowed to read the page
 			return '';
 		}
