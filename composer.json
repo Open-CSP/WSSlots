@@ -5,7 +5,8 @@
   "keywords": [ "slots" ],
   "license": "GPL-2.0-or-later",
   "require": {
-    "wikibase-solutions/mediawiki-template-parser": "^2.0"
+    "wikibase-solutions/mediawiki-template-parser": "^2.0",
+    "galbar/jsonpath": "^2.1"
   },
   "require-dev": {
     "mediawiki/mediawiki-codesniffer": "34.0.0",

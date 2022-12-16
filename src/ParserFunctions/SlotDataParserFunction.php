@@ -3,6 +3,9 @@
 namespace WSSlots\ParserFunctions;
 
 use FormatJson;
+use JsonPath\InvalidJsonException;
+use JsonPath\InvalidJsonPathException;
+use JsonPath\JsonObject;
 use MWException;
 use Parser;
 use TextContent;
@@ -90,7 +93,7 @@ class SlotDataParserFunction {
 			}
 		}
 
-		$value = $this->findValueByKey( $key, $content );
+		$value = $this->findBlockByPath( $key, $content );
 
 		return is_array( $value ) ?
 			json_encode( $value ) :
@@ -100,26 +103,21 @@ class SlotDataParserFunction {
 	/**
 	 * Returns the value associated with the given key, or NULL if it does not exist.
 	 *
-	 * @param string $key A dot-separated list of array indices (i.e. foo.bar.quz for $array["foo"]["bar"]["quz"])
+	 * @param string $path A JSON-path
 	 * @param array $array The array to search in
 	 * @return mixed
 	 */
-	private function findValueByKey( string $key, array $array ) {
-		$parts = $key === '' ? [] : explode( '.', $key );
+	private function findBlockByPath( string $path, array $array ) {
+        if ( substr( $path, 0, 2 ) !== '$.' ) {
+            $path = '$.' . $path;
+        }
 
-		foreach ( $parts as $part ) {
-			if ( preg_match( '/\d+/', $part ) ) {
-				$part = intval( $part );
-			}
-
-			if ( !isset( $array[$part] ) ) {
-				return null;
-			}
-
-			$array = $array[$part];
-		}
-
-		return $array;
+        try {
+            $jsonObject = new JsonObject( $array );
+            return $jsonObject->get( $path );
+        } catch ( InvalidJsonException|InvalidJsonPathException $exception ) {
+            return null;
+        }
 	}
 
 	/**
