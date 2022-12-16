@@ -2,15 +2,21 @@
 
 namespace WSSlots;
 
+use MediaWiki;
 use MediaWiki\ChangeTags\Hook\ChangeTagsListActiveHook;
 use MediaWiki\ChangeTags\Hook\ListDefinedTagsHook;
 use MediaWiki\Hook\MediaWikiServicesHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
+use MediaWiki\MediaWikiServices;
 use MWException;
+use OutputPage;
 use RequestContext;
 use SMW\ParserData;
 use SMW\SemanticData;
 use SMW\Store;
+use Title;
+use User;
+use WebRequest;
 use WikiPage;
 use WSSlots\ParserFunctions\SlotParserFunction;
 use WSSlots\ParserFunctions\SlotTemplatesParserFunction;
@@ -25,6 +31,10 @@ class WSSlotsHooks implements
     ChangeTagsListActiveHook,
     ParserFirstCallInitHook,
     MediaWikiServicesHook {
+    private const AVAILABLE_ACTION_OVERRIDES = [
+        'raw' => 'rawslot'
+    ];
+
     /**
      * @inheritDoc
      */
@@ -162,21 +172,45 @@ class WSSlotsHooks implements
      * @link https://www.mediawiki.org/wiki/Manual:Hooks/BeforeInitialize
      *
      * @param Title $title
-     * @param unused
+     * @param mixed unused
      * @param OutputPage $output
      * @param User $user
      * @param WebRequest $request
      * @param MediaWiki $mediaWiki
      * @return bool
      */
-    public static function onBeforeInitialize( \Title &$title, $unused, \OutputPage $output, \User $user, \WebRequest $request, \MediaWiki $mediaWiki ) { 
+    public static function onBeforeInitialize(
+        Title &$title, $unused, OutputPage $output, User $user, WebRequest $request, MediaWiki $mediaWiki
+    ) {
+        $overrides = MediaWikiServices::getInstance()->getMainConfig()->get( "WSSlotsOverrideActions" );
 
-        $config = \MediaWiki\MediaWikiServices::getInstance()->getMainConfig();
+        // We cannot use $mediaWiki->getAction() here, because that reads from the Request and gets cached
+        $action = $request->getText( 'action' );
 
-        #if enabled, we overwrite 'action=raw&slot=someslot' with 'action=rawslot&slot=someslot'
-        if ( $config->get( "WSSlotsOverrideRawAction" ) && $request->getText( 'action' ) === 'raw' && $request->getText( 'slot' )) {
-            $request->setVal( 'action', 'rawslot');
-		}
+        if ( self::isActionOverridden( $action, $overrides ) && isset( self::AVAILABLE_ACTION_OVERRIDES[$action] ) ) {
+            $request->setVal( 'action', self::AVAILABLE_ACTION_OVERRIDES[$action] );
+        }
+
         return true;
+    }
+
+    /**
+     * Checks whether the given action is overridden.
+     *
+     * @param string $action
+     * @param bool|array $overrides
+     * @return bool
+     */
+    private static function isActionOverridden( string $action, $overrides ): bool {
+        if ( is_bool( $overrides ) ) {
+            return $overrides;
+        }
+
+        if ( is_array( $overrides ) ) {
+            return in_array( $action, $overrides, true );
+        }
+
+        // Anything else, return false.
+        return false;
     }
 }
