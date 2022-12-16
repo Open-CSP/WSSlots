@@ -41,7 +41,7 @@ class SlotAwareRawAction extends RawAction {
 			// Public-only due to cache headers
 			// Fetch specific slot if defined
 			$slot = $this->getRequest()->getText( 'slot', SlotRecord::MAIN );
-            $content = $rev->getContent( $slot );
+			$content = $rev->getContent( $slot );
 
 			if ( $content === null ) {
 				// revision not found (or suppressed)
