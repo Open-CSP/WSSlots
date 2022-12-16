@@ -5,7 +5,7 @@
     ]
   },
   "wsslots-extensionname": "WSSlots",
-  "wsslots-desc": "Provides a mechanism to create new slots.",
+  "wsslots-desc": "Improves support for slots in MediaWiki.",
   "wsslots-invalid-append-slots-config": "Missing or invalid value for $wgWSSlotsSlotsToAppend.",
   "wsslots-no-such-revision": "No revision found for the given title, pageid or oldid.",
   "wsslots-cannot-parse-model": "Cannot parse content model \"$1\".",
