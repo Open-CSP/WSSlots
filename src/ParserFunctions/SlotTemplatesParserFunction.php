@@ -4,6 +4,7 @@ namespace WSSlots\ParserFunctions;
 
 use ComplexArray;
 use Error;
+use MediaWiki\MediaWikiServices;
 use MWException;
 use Parser;
 use TextContent;
@@ -31,7 +32,13 @@ class SlotTemplatesParserFunction {
 	 * @return string
 	 * @throws MWException
 	 */
-	public function execute( Parser $parser, string $slotName, string $pageName = null, string $arrayName = null, string $recursive = null ): string {
+	public function execute(
+		Parser $parser,
+		string $slotName,
+		string $pageName = null,
+		string $arrayName = null,
+		string $recursive = null
+	): string {
 		if ( !class_exists( "\ComplexArray" ) ) {
 			return 'ComplexArrays is required for this functionality.';
 		}
@@ -43,6 +50,17 @@ class SlotTemplatesParserFunction {
 		$wikiPage = $this->getWikiPage( $pageName );
 
 		if ( !$wikiPage ) {
+			return '';
+		}
+
+		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
+			'read',
+			$parser->getUser(),
+			$wikiPage->getTitle()
+		);
+
+		if ( !$userCan ) {
+			// The user is not allowed to read the page
 			return '';
 		}
 

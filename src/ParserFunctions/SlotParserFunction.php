@@ -2,6 +2,7 @@
 
 namespace WSSlots\ParserFunctions;
 
+use MediaWiki\MediaWikiServices;
 use MWException;
 use Parser;
 use TextContent;
@@ -32,6 +33,17 @@ class SlotParserFunction {
 		$wikiPage = $this->getWikiPage( $pageName );
 
 		if ( $wikiPage === null ) {
+			return '';
+		}
+
+		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
+			'read',
+			$parser->getUser(),
+			$wikiPage->getTitle()
+		);
+
+		if ( !$userCan ) {
+			// The user is not allowed to read the page
 			return '';
 		}
 
