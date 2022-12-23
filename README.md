@@ -62,7 +62,19 @@ When set to true, all actions are replaced by slot-aware actions when available.
 ### `#slot`
 The extension provides the `#slot` parser function to get the content of a specific slot. For example, `{{#slot: main}}` returns the content of the `main` slot. You can optionally specify a page as the second parameter. For instance, `{{#slot: main | Foobar }}` gets the `main` slot from the page `Foobar`. An additional third parameter can be set to anything to have the returned content parsed.
 
-### `#slottemplates`
+### `#slotdata`
+The extension provides the `#slotdata` parser function to get JSON content from a specific slot. The syntax of the parser function is as follows:
+
+```
+{{#slotdata: <slotname> | [<pagename> | [<key> | [<search>]]]}}
+```
+
+* `<slotname>`: The name of the slot to get the data from.
+* `<pagename>` (optional, default: `{{FULLPAGENAME}}` ): The name of the page to get the data from.
+* `<key>` (optional, default: ``): The key of the value to return (dot-separated list of indices).
+* `<search>` (optional, default: ``): The search to perform before looking for the key, should be of the form `key=value`. If the given key-value pair is not unique, the first enclosing block that contains that pair will be used.
+
+### `#slottemplates` (deprecated)
 The extension also provides the `#slottemplates` parser function that returns the templates in a specific slot as a multidimensional array. This parser function required WSArrays to be installed.
 
 The parser function has two modes of operation. It can either process templates non-recursively (DEPRECATED), or it can process them recursively (RECOMMENDED). With the non-recursive parser function, multiple templates with the same name are not supported and nested template calls are not processed. With recursive parsing, this is supported. Recursive parsing also supports retrieving the original unparsed content of an argument.

@@ -18,6 +18,7 @@ use Title;
 use User;
 use WebRequest;
 use WikiPage;
+use WSSlots\ParserFunctions\SlotDataParserFunction;
 use WSSlots\ParserFunctions\SlotParserFunction;
 use WSSlots\ParserFunctions\SlotTemplatesParserFunction;
 use WSSlots\Scribunto\ScribuntoLuaLibrary;
@@ -35,7 +36,7 @@ class WSSlotsHooks implements
 	private const AVAILABLE_ACTION_OVERRIDES = [
 		'raw' => 'rawslot'
 	];
-
+  
 	/**
 	 * @inheritDoc
 	 */
@@ -57,6 +58,7 @@ class WSSlotsHooks implements
 	 */
 	public function onParserFirstCallInit( $parser ) {
 		$parser->setFunctionHook( 'slot', [ new SlotParserFunction(), 'execute' ] );
+		$parser->setFunctionHook( 'slotdata', [ new SlotDataParserFunction(), 'execute' ] );
 		$parser->setFunctionHook( 'slottemplates', [ new SlotTemplatesParserFunction(), 'execute' ] );
 	}
 

@@ -25,7 +25,7 @@ class ApiEditSlot extends ApiBase {
 	public function execute() {
 		$this->useTransactionalTimeLimit();
 
-        $user = $this->getUser();
+		$user = $this->getUser();
 		$params = $this->extractRequestParams();
 		$wikiPage = $this->getTitleOrPageId( $params );
 		$title = $wikiPage->getTitle();
@@ -34,25 +34,25 @@ class ApiEditSlot extends ApiBase {
 		$this->checkTitleUserPermissions(
 			$title,
 			$title->exists() ? 'edit' : [ 'edit', 'create' ],
-  			[ 'autoblock' => true ]
-  		);
+			[ 'autoblock' => true ]
+		);
 
 		$result = WSSlots::editSlot(
 			$user,
 			$wikiPage,
-            $params["text"] ?? "",
+			$params["text"] ?? "",
 			$params["slot"],
 			$params["summary"],
 			$params["append"],
-            $params["watchlist"]
+			$params["watchlist"]
 		);
 
-		if ($result !== true) {
+		if ( $result !== true ) {
 			list( $message, $code ) = $result;
 
-			Logger::getLogger()->alert('Editing slot failed while performing edit through the "editslot" API: {message}', [
+			Logger::getLogger()->alert( 'Editing slot failed while performing edit through the "editslot" API: {message}', [
 				'message' => $message
-			]);
+			] );
 
 			$this->dieWithError( $message, $code );
 		}
@@ -98,10 +98,10 @@ class ApiEditSlot extends ApiBase {
 				ApiBase::PARAM_TYPE => 'text',
 				ParamValidator::PARAM_DEFAULT => ""
 			],
-            'watchlist' => [
-                ApiBase::PARAM_TYPE => 'text',
-                ParamValidator::PARAM_DEFAULT => ""
-            ]
+			'watchlist' => [
+				ApiBase::PARAM_TYPE => 'text',
+				ParamValidator::PARAM_DEFAULT => ""
+			]
 		];
 	}
 
