@@ -15,6 +15,8 @@ use WSSlots\WSSlots;
 
 /**
  * Handles the #slottemplates parser function.
+ *
+ * @deprecated
  */
 class SlotTemplatesParserFunction {
 	use WikiPageTrait;

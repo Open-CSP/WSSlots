@@ -12,6 +12,7 @@ use SMW\ParserData;
 use SMW\SemanticData;
 use SMW\Store;
 use WikiPage;
+use WSSlots\ParserFunctions\SlotDataParserFunction;
 use WSSlots\ParserFunctions\SlotParserFunction;
 use WSSlots\ParserFunctions\SlotTemplatesParserFunction;
 use WSSlots\Scribunto\ScribuntoLuaLibrary;
@@ -47,6 +48,7 @@ class WSSlotsHooks implements
 	 */
 	public function onParserFirstCallInit( $parser ) {
 		$parser->setFunctionHook( 'slot', [ new SlotParserFunction(), 'execute' ] );
+		$parser->setFunctionHook( 'slotdata', [ new SlotDataParserFunction(), 'execute' ] );
 		$parser->setFunctionHook( 'slottemplates', [ new SlotTemplatesParserFunction(), 'execute' ] );
 	}
 
@@ -67,7 +69,7 @@ class WSSlotsHooks implements
 	 * @link https://www.mediawiki.org/wiki/Extension:Scribunto/Hooks/ScribuntoExternalLibraries
 	 *
 	 * @param string $engine
-	 * @param array $extraLibraries
+	 * @param array &$extraLibraries
 	 * @return bool
 	 */
 	public static function onScribuntoExternalLibraries( string $engine, array &$extraLibraries ): bool {
