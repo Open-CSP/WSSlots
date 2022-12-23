@@ -53,6 +53,10 @@ This configuration parameter defines which slots should be analysed for semantic
 
 This configuration option specifies whether to purge the page after a slot edit is performed.
 
+### `$wgWSSlotsOverrideActions`
+
+When set to true, all actions are replaced by slot-aware actions when available. When set to an array, each item in the array specifies an action to replace with its slot aware counterpart. See [#Actions](#Actions) below for a list of available slot-aware actions.
+
 ## Parser functions
 
 ### `#slot`
@@ -79,4 +83,13 @@ The syntax of the parser function is as follows:
 
 ```
 {{#slottemplates: <slotname> | <pagename> | <arrayname> | <recursive> }}
+```
+
+## Actions ##
+
+### `rawslot` ###
+Slot-aware version of `action=raw` (see [RawAction](https://m.mediawiki.org/wiki/Manual:RawAction.php)). Returns the content of the specified slot as raw value (format depends on the slot content model). Example:
+
+```
+/wiki/MyMultislotPage?action=rawslot&slot=someslot
 ```
