@@ -96,9 +96,9 @@ class SlotRoleRegistryServiceManipulator {
 			$slotSettings["content_model"] = $slotSettings["content_model"] ?? $defaultContentModel;
 			$slotSettings["slot_role_layout"] = $slotSettings["slot_role_layout"] ?? $defaultSlotRoleLayout;
 
-            if ( !$registry->isDefinedRole( $slotName ) ) {
-                $registry->defineRoleWithModel( $slotName, $slotSettings["content_model"], $slotSettings["slot_role_layout"] );
-            }
+			if ( !$registry->isDefinedRole( $slotName ) ) {
+				$registry->defineRoleWithModel( $slotName, $slotSettings["content_model"], $slotSettings["slot_role_layout"] );
+			}
 		}
 	}
 
@@ -116,8 +116,6 @@ class SlotRoleRegistryServiceManipulator {
 		string $slot_name,
 		array $slot_settings
 	): bool {
-
-
 		return true;
 	}
 }

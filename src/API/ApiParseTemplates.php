@@ -24,20 +24,20 @@ class ApiParseTemplates extends ApiBase {
 	public function execute() {
 		$this->useTransactionalTimeLimit();
 
-        $params = $this->extractRequestParams();
-        $revision = $this->getRevisionOrDie( $params );
+		$params = $this->extractRequestParams();
+		$revision = $this->getRevisionOrDie( $params );
 
 		// Check if we are allowed to view the page to which the revision belongs
 		$this->checkTitleUserPermissions( $revision->getPageAsLinkTarget(), 'read', [ 'autoblock' => true ] );
 
-        $content = $revision->getContent( $params['slot'] );
+		$content = $revision->getContent( $params['slot'] );
 
-        if ( !$content instanceof \WikitextContent ) {
-            $this->dieWithError( 'wsslots-cannot-parse-model', $content->getModel() );
-        }
+		if ( !$content instanceof \WikitextContent ) {
+			$this->dieWithError( 'wsslots-cannot-parse-model', $content->getModel() );
+		}
 
-        $parseTree = ( new RecursiveParser() )->parse( $content->getText() );
-        $this->getResult()->addValue( null, 'tree', json_encode( $parseTree ) );
+		$parseTree = ( new RecursiveParser() )->parse( $content->getText() );
+		$this->getResult()->addValue( null, 'tree', json_encode( $parseTree ) );
 	}
 
 	/**
@@ -65,9 +65,9 @@ class ApiParseTemplates extends ApiBase {
 			'pageid' => [
 				ApiBase::PARAM_TYPE => 'integer'
 			],
-            'oldid' => [
-                ApiBase::PARAM_TYPE => 'integer'
-            ],
+			'oldid' => [
+				ApiBase::PARAM_TYPE => 'integer'
+			],
 			'slot' => [
 				ApiBase::PARAM_TYPE => 'text',
 				ParamValidator::PARAM_DEFAULT => SlotRecord::MAIN
@@ -75,23 +75,23 @@ class ApiParseTemplates extends ApiBase {
 		];
 	}
 
-    private function getRevisionOrDie( array $params ): RevisionRecord {
-        if ( isset( $params['oldid'] ) ) {
-            // Since we know 'oldid' is set, if more than one of these parameter is set, we should give an error
-            $this->requireMaxOneParameter( $params, 'title', 'pageid', 'oldid' );
+	private function getRevisionOrDie( array $params ): RevisionRecord {
+		if ( isset( $params['oldid'] ) ) {
+			// Since we know 'oldid' is set, if more than one of these parameter is set, we should give an error
+			$this->requireMaxOneParameter( $params, 'title', 'pageid', 'oldid' );
 
-            $revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
-            $revision = $revisionStore->getRevisionById( $params['oldid'] );
-        } else {
-            $wikiPage = $this->getTitleOrPageId( $params );
-            $revision = $wikiPage->getRevisionRecord();
-        }
+			$revisionStore = MediaWikiServices::getInstance()->getRevisionStore();
+			$revision = $revisionStore->getRevisionById( $params['oldid'] );
+		} else {
+			$wikiPage = $this->getTitleOrPageId( $params );
+			$revision = $wikiPage->getRevisionRecord();
+		}
 
-        if ( $revision === null ) {
-            // No such revision
-            $this->dieWithError( 'wsslots-no-such-revision' );
-        }
+		if ( $revision === null ) {
+			// No such revision
+			$this->dieWithError( 'wsslots-no-such-revision' );
+		}
 
-        return $revision;
-    }
+		return $revision;
+	}
 }
