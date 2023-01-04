@@ -60,6 +60,7 @@
   "APIModules": {
     "parsetemplates": "WSSlots\\API\\ApiParseTemplates",
     "editslot": "WSSlots\\API\\ApiEditSlot",
+    "editslots": "WSSlots\\API\\ApiEditSlots",
     "readslot": "WSSlots\\API\\ApiReadSlot"
   },
   "manifest_version": 2,
