@@ -216,4 +216,19 @@ class WSSlotsHooks implements
 		// Anything else, return false.
 		return false;
 	}
+
+	/**
+	 * Hook to expose the WSSlots configuration array as javascript variable.
+	 *
+	 * @link https://www.mediawiki.org/wiki/Manual:Hooks/ResourceLoaderGetConfigVars
+	 *
+	 * @param array &$vars - Array of variables to be added into the output of the startup module.
+	 * @param string $skin Current skin name to restrict config variables to a certain skin (if needed)
+	 * @param Config $config
+	 * @return bool
+	 */
+	public static function onResourceLoaderGetConfigVars( array &$vars, string $skin, \Config $config ) {
+		$vars['wgWSSlotsDefinedSlots'] = $config->get( 'WSSlotsDefinedSlots' );
+		return true;
+	}
 }
