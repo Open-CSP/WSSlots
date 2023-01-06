@@ -6,6 +6,7 @@ use FormatJson;
 use JsonPath\InvalidJsonException;
 use JsonPath\InvalidJsonPathException;
 use JsonPath\JsonObject;
+use MediaWiki\MediaWikiServices;
 use MWException;
 use Parser;
 use TextContent;
@@ -39,6 +40,17 @@ class SlotDataParserFunction {
 		if ( !$wikiPage ) {
 			return '';
 		}
+
+        $userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
+            'read',
+            $parser->getUser(),
+            $wikiPage->getTitle()
+        );
+
+        if ( !$userCan ) {
+            // The user is not allowed to read the page
+            return '';
+        }
 
 		$contentObject = WSSlots::getSlotContent( $wikiPage, $slotName );
 
