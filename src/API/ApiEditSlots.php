@@ -41,12 +41,8 @@ class ApiEditSlots extends ApiBase {
 
 		$slotUpdates = [];
 
-		if ( isset( $params[ self::maskSlotName( SlotRecord::MAIN ) ] ) ) {
-			$slotUpdates[ SlotRecord::MAIN ] = $params[ self::maskSlotName( SlotRecord::MAIN ) ];
-		}
-
-		$slots = MediaWikiServices::getInstance()->getMainConfig()->get( "WSSlotsDefinedSlots" );
-		foreach ( $slots as $slotName => $config ) {
+        $slots = MediaWikiServices::getInstance()->getSlotRoleRegistry()->getKnownRoles();
+        foreach ( $slots as $slotName ) {
 			if ( isset( $params[ self::maskSlotName( $slotName ) ] ) ) {
 				$slotUpdates[ $slotName ] = $params[ self::maskSlotName( $slotName ) ];
 			}
@@ -113,11 +109,12 @@ class ApiEditSlots extends ApiBase {
 			]
 		];
 
-		$params[self::maskSlotName(SlotRecord::MAIN)] = [ApiBase::PARAM_TYPE => 'text'];
-
-		$slots = MediaWikiServices::getInstance()->getMainConfig()->get( "WSSlotsDefinedSlots" );
-		foreach($slots as $slotName => $config) {
-			$params[self::maskSlotName($slotName)] = [ApiBase::PARAM_TYPE => 'text'];
+		$slots = MediaWikiServices::getInstance()->getSlotRoleRegistry()->getKnownRoles();
+		foreach ( $slots as $slotName ) {
+			$params[self::maskSlotName($slotName)] = [
+                ApiBase::PARAM_TYPE => 'text',
+                ApiBase::PARAM_HELP_MSG => 'apihelp-editslots-param-slot'
+            ];
 		}
 
 		return $params;
