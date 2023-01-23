@@ -39,23 +39,23 @@ class ApiEditSlots extends ApiBase {
 			[ 'autoblock' => true ]
 		);
 
-		$slotupdates = array();
+		$slotUpdates = [];
 
 		if ( isset( $params[ self::maskSlotName( SlotRecord::MAIN ) ] ) ) {
-			$slotupdates[ SlotRecord::MAIN ] = $params[ self::maskSlotName( SlotRecord::MAIN ) ];
+			$slotUpdates[ SlotRecord::MAIN ] = $params[ self::maskSlotName( SlotRecord::MAIN ) ];
 		}
 
 		$slots = MediaWikiServices::getInstance()->getMainConfig()->get( "WSSlotsDefinedSlots" );
-		foreach( $slots as $slotName => $config ) {
+		foreach ( $slots as $slotName => $config ) {
 			if ( isset( $params[ self::maskSlotName( $slotName ) ] ) ) {
-				$slotupdates[ $slotName ] = $params[ self::maskSlotName( $slotName ) ];
+				$slotUpdates[ $slotName ] = $params[ self::maskSlotName( $slotName ) ];
 			}
 		}
 
 		$result = WSSlots::editSlots(
 			$user,
 			$wikiPage,
-			$slotupdates,
+			$slotUpdates,
 			$params["summary"],
 			$params["append"],
 			$params["watchlist"]
@@ -64,15 +64,13 @@ class ApiEditSlots extends ApiBase {
 		if ( $result !== true ) {
 			list( $message, $code ) = $result;
 
-			Logger::getLogger()->alert( 'Editing slot failed while performing edit through the "editslot" API: {message}', [
+			Logger::getLogger()->alert( 'Editing slot failed while performing edit through the "editslots" API: {message}', [
 				'message' => $message
 			] );
 
 			$this->dieWithError( $message, $code );
-		}
-
-		else {
-			$apiResult->addValue( null, 'editslots', ['result' => 'Success'] );
+		} else {
+			$apiResult->addValue( null, 'editslots', ['result' => 'success'] );
 		}
 	}
 
@@ -138,21 +136,18 @@ class ApiEditSlots extends ApiBase {
 	protected function getExamplesMessages(): array {
 		return [
 			'action=editslots&title=Test&summary=test%20summary&' .
-			self::maskSlotName(SlotRecord::MAIN) . '=article%20content&token=123ABC'
+			self::maskSlotName( SlotRecord::MAIN ) . '=article%20content&token=123ABC'
 			=> 'apihelp-edit-example-edit'
 		];
 	}
 
-	public static function maskSlotName($slotName) {
-		$prefix = 'slot_';
-		return $prefix . $slotName;
-	}
-
-	public static function demaskSlotName($masked_slotName) {
-		$prefix = 'slot_';
-		if (substr($masked_slotName, 0, strlen($prefix)) == $prefix) {
-			$masked_slotName = substr($masked_slotName, strlen($prefix));
-		} 
-		return $masked_slotName;
+    /**
+     * Masks the given slot name with the prefix "slot_" for use as a parameter name.
+     *
+     * @param string $slotName
+     * @return string
+     */
+	private static function maskSlotName( string $slotName ): string {
+		return 'slot_' . $slotName;
 	}
 }

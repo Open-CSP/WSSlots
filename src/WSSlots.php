@@ -50,7 +50,7 @@ class WSSlots {
 	/**
 	 * @param User $user The user that performs the edit
 	 * @param WikiPage $wikiPage The page to edit
-	 * @param string $slotupdates Associative array with slotName as key, text as value
+	 * @param array $slotUpdates Associative array with slotName as key, text as value
 	 * @param string $summary The summary to use
 	 * @param bool $append Whether to append to or replace the current text
 	 * @param string $watchlist Set to "nochange" to suppress watchlist notifications
@@ -61,12 +61,12 @@ class WSSlots {
 	 * @throws MWException Should not happen
 	 */
 	final public static function editSlots(
-		User $user,
+		User     $user,
 		WikiPage $wikiPage,
-		array $slotupdates,
-		string $summary,
-		bool $append = false,
-		string $watchlist = ""
+		array    $slotUpdates,
+		string   $summary,
+		bool     $append = false,
+		string   $watchlist = ""
 	) {
 		$logger = Logger::getLogger();
 
@@ -80,8 +80,7 @@ class WSSlots {
 			return [ wfMessage( "wsslots-error-invalid-wikipage-object" ) ];
 		}
 
-		foreach( $slotupdates as $slotName => $text ) {
-
+		foreach ( $slotUpdates as $slotName => $text ) {
 			$logger->debug( 'Editing slot {slotName} on page {page}', [
 				'slotName' => $slotName,
 				'page' => $titleObject->getFullText()
@@ -149,14 +148,14 @@ class WSSlots {
 				$pageUpdater->setContent( $slotName, $slotContent );
 			}
 
-			//note: the in_array check is not necessary because array_unique is called in pageUpdater->computeEffectiveTags()
-			if ( $slotName !== SlotRecord::MAIN ) {//&& in_array( 'wsslots-slot-edit', $pageUpdater->getExplicitTags() ) ) {
+			if ( $slotName !== SlotRecord::MAIN ) {
+                // Note: An in_array check is not necessary because array_unique is called
+                // in pageUpdater->computeEffectiveTags()
 				$pageUpdater->addTag( 'wsslots-slot-edit' );
 			}
-
 		}
 
-		if ( $oldRevisionRecord === null && !array_key_exists($slotupdates, SlotRecord::MAIN) ) {
+		if ( $oldRevisionRecord === null && !isset( $slotUpdates[SlotRecord::MAIN] ) ) {
 			// The 'main' content slot MUST be set when creating a new page
 			$logger->debug( 'Setting empty "main" slot' );
 
