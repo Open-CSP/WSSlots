@@ -108,16 +108,16 @@ class SlotDataParserFunction {
 	 * @return mixed
 	 */
 	private function findBlockByPath( string $path, array $array ) {
-        if ( substr( $path, 0, 2 ) !== '$.' ) {
-            $path = '$.' . $path;
-        }
+		if ( substr( $path, 0, 2 ) !== '$.' ) {
+			$path = '$.' . $path;
+		}
 
-        try {
-            $jsonObject = new JsonObject( $array );
-            return $jsonObject->get( $path );
-        } catch ( InvalidJsonException|InvalidJsonPathException $exception ) {
-            return null;
-        }
+		try {
+			$jsonObject = new JsonObject( $array );
+			return $jsonObject->get( $path );
+		} catch ( InvalidJsonException | InvalidJsonPathException $exception ) {
+			return null;
+		}
 	}
 
 	/**

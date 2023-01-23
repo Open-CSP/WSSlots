@@ -3,7 +3,6 @@
 namespace WSSlots;
 
 use Config;
-use MediaWiki;
 use MediaWiki\ChangeTags\Hook\ChangeTagsListActiveHook;
 use MediaWiki\ChangeTags\Hook\ListDefinedTagsHook;
 use MediaWiki\Hook\BeforeInitializeHook;
@@ -12,14 +11,10 @@ use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\ResourceLoader\Hook\ResourceLoaderGetConfigVarsHook;
 use MWException;
-use OutputPage;
 use RequestContext;
 use SMW\ParserData;
 use SMW\SemanticData;
 use SMW\Store;
-use Title;
-use User;
-use WebRequest;
 use WikiPage;
 use WSSlots\ParserFunctions\SlotDataParserFunction;
 use WSSlots\ParserFunctions\SlotParserFunction;
@@ -35,13 +30,13 @@ class WSSlotsHooks implements
 	ChangeTagsListActiveHook,
 	ParserFirstCallInitHook,
 	MediaWikiServicesHook,
-    ResourceLoaderGetConfigVarsHook,
-    BeforeInitializeHook
+	ResourceLoaderGetConfigVarsHook,
+	BeforeInitializeHook
 {
 	private const AVAILABLE_ACTION_OVERRIDES = [
 		'raw' => 'rawslot'
 	];
-  
+
 	/**
 	 * @inheritDoc
 	 */
@@ -78,26 +73,26 @@ class WSSlotsHooks implements
 		$services->addServiceManipulator( "SlotRoleRegistry", $manipulator );
 	}
 
-    /**
-     * @inheritDoc
-     */
-    public function onResourceLoaderGetConfigVars( array &$vars, $skin, Config $config ): void {
-        $vars['wgWSSlotsDefinedSlots'] = $config->get( 'WSSlotsDefinedSlots' );
-        $vars['wgKnownRoles'] = MediaWikiServices::getInstance()->getSlotRoleRegistry()->getKnownRoles();
-    }
+	/**
+	 * @inheritDoc
+	 */
+	public function onResourceLoaderGetConfigVars( array &$vars, $skin, Config $config ): void {
+		$vars['wgWSSlotsDefinedSlots'] = $config->get( 'WSSlotsDefinedSlots' );
+		$vars['wgKnownRoles'] = MediaWikiServices::getInstance()->getSlotRoleRegistry()->getKnownRoles();
+	}
 
-    /**
-     * @inheritDoc
-     */
-    public function onBeforeInitialize( $title, $unused, $output, $user, $request, $mediaWiki ): void {
-        $overrides = MediaWikiServices::getInstance()->getMainConfig()->get( "WSSlotsOverrideActions" );
-        // We cannot use $mediaWiki->getAction() here, because that reads from the Request and gets cached
-        $action = $request->getText( 'action' );
+	/**
+	 * @inheritDoc
+	 */
+	public function onBeforeInitialize( $title, $unused, $output, $user, $request, $mediaWiki ): void {
+		$overrides = MediaWikiServices::getInstance()->getMainConfig()->get( "WSSlotsOverrideActions" );
+		// We cannot use $mediaWiki->getAction() here, because that reads from the Request and gets cached
+		$action = $request->getText( 'action' );
 
-        if ( self::isActionOverridden( $action, $overrides ) && isset( self::AVAILABLE_ACTION_OVERRIDES[$action] ) ) {
-            $request->setVal( 'action', self::AVAILABLE_ACTION_OVERRIDES[$action] );
-        }
-    }
+		if ( self::isActionOverridden( $action, $overrides ) && isset( self::AVAILABLE_ACTION_OVERRIDES[$action] ) ) {
+			$request->setVal( 'action', self::AVAILABLE_ACTION_OVERRIDES[$action] );
+		}
+	}
 
 	/**
 	 * Allow extensions to add libraries to Scribunto.
