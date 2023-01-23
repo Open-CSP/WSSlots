@@ -35,10 +35,12 @@ $wgWSSlotsDefinedSlots = [
 ];
 ```
 
-This configuration variable is also exposed as javascript variable and can be accessed as follows:
+This configuration variable is also exposed as a JavaScript variable and can be accessed like so:
+
 ```javascript
 var site_slots = mw.config.get('wgWSSlotsDefinedSlots');
 ```
+
 Please note that this only covers slots created by the WSSlots extension.
 
 For more information on content models see [MediaWiki.org](https://www.mediawiki.org/wiki/Manual:Page_content_models) and for more information on slot role layouts see [here](https://doc.wikimedia.org/mediawiki-core/master/php/classMediaWiki_1_1Revision_1_1SlotRoleHandler.html#a42a50a9312fd931793c3573808f5b8a1).
