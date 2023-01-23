@@ -44,7 +44,7 @@ class WSSlots {
 		bool $append = false,
 		string $watchlist = ""
 	) {
-		return self::editSlots($user, $wikiPage, [$slotName => $text], $summary, $append, $watchlist);
+		return self::editSlots( $user, $wikiPage, [$slotName => $text], $summary, $append, $watchlist );
 	}
 
 	/**
