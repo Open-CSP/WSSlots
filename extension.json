@@ -31,7 +31,7 @@
     "ResourceLoaderGetConfigVars": "main",
     "BeforeInitialize": "main",
     "SMW::Store::BeforeDataUpdateComplete": "\\WSSlots\\WSSlotsHooks::onBeforeDataUpdateComplete",
-    "ScribuntoExternalLibraries": "\\WSSlots\\WSSlotsHooks::onScribuntoExternalLibraries",
+    "ScribuntoExternalLibraries": "\\WSSlots\\WSSlotsHooks::onScribuntoExternalLibraries"
   },
   "HookHandlers": {
     "main": {
