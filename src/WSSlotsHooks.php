@@ -2,15 +2,21 @@
 
 namespace WSSlots;
 
+use MediaWiki;
 use MediaWiki\ChangeTags\Hook\ChangeTagsListActiveHook;
 use MediaWiki\ChangeTags\Hook\ListDefinedTagsHook;
 use MediaWiki\Hook\MediaWikiServicesHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
+use MediaWiki\MediaWikiServices;
 use MWException;
+use OutputPage;
 use RequestContext;
 use SMW\ParserData;
 use SMW\SemanticData;
 use SMW\Store;
+use Title;
+use User;
+use WebRequest;
 use WikiPage;
 use WSSlots\ParserFunctions\SlotDataParserFunction;
 use WSSlots\ParserFunctions\SlotParserFunction;
@@ -27,6 +33,10 @@ class WSSlotsHooks implements
 	ParserFirstCallInitHook,
 	MediaWikiServicesHook
 {
+	private const AVAILABLE_ACTION_OVERRIDES = [
+		'raw' => 'rawslot'
+	];
+  
 	/**
 	 * @inheritDoc
 	 */
@@ -157,5 +167,53 @@ class WSSlotsHooks implements
 		}
 
 		return true;
+	}
+
+	/**
+	 * Hook to extend the original RawAction on demand to fetch contents from a specific slot.
+	 *
+	 * @link https://www.mediawiki.org/wiki/Manual:Hooks/BeforeInitialize
+	 *
+	 * @param Title &$title
+	 * @param mixed unused
+	 * @param OutputPage $output
+	 * @param User $user
+	 * @param WebRequest $request
+	 * @param MediaWiki $mediaWiki
+	 * @return bool
+	 */
+	public static function onBeforeInitialize(
+		Title &$title, $unused, OutputPage $output, User $user, WebRequest $request, MediaWiki $mediaWiki
+	) {
+		$overrides = MediaWikiServices::getInstance()->getMainConfig()->get( "WSSlotsOverrideActions" );
+
+		// We cannot use $mediaWiki->getAction() here, because that reads from the Request and gets cached
+		$action = $request->getText( 'action' );
+
+		if ( self::isActionOverridden( $action, $overrides ) && isset( self::AVAILABLE_ACTION_OVERRIDES[$action] ) ) {
+			$request->setVal( 'action', self::AVAILABLE_ACTION_OVERRIDES[$action] );
+		}
+
+		return true;
+	}
+
+	/**
+	 * Checks whether the given action is overridden.
+	 *
+	 * @param string $action
+	 * @param bool|array $overrides
+	 * @return bool
+	 */
+	private static function isActionOverridden( string $action, $overrides ): bool {
+		if ( is_bool( $overrides ) ) {
+			return $overrides;
+		}
+
+		if ( is_array( $overrides ) ) {
+			return in_array( $action, $overrides, true );
+		}
+
+		// Anything else, return false.
+		return false;
 	}
 }
