@@ -2,12 +2,15 @@
 
 namespace WSSlots;
 
+use Config;
 use MediaWiki;
 use MediaWiki\ChangeTags\Hook\ChangeTagsListActiveHook;
 use MediaWiki\ChangeTags\Hook\ListDefinedTagsHook;
+use MediaWiki\Hook\BeforeInitializeHook;
 use MediaWiki\Hook\MediaWikiServicesHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\MediaWikiServices;
+use MediaWiki\ResourceLoader\Hook\ResourceLoaderGetConfigVarsHook;
 use MWException;
 use OutputPage;
 use RequestContext;
@@ -31,7 +34,9 @@ class WSSlotsHooks implements
 	ListDefinedTagsHook,
 	ChangeTagsListActiveHook,
 	ParserFirstCallInitHook,
-	MediaWikiServicesHook
+	MediaWikiServicesHook,
+    ResourceLoaderGetConfigVarsHook,
+    BeforeInitializeHook
 {
 	private const AVAILABLE_ACTION_OVERRIDES = [
 		'raw' => 'rawslot'
@@ -72,6 +77,27 @@ class WSSlotsHooks implements
 		$manipulator = [ $serviceManipulator, "defineRoles" ];
 		$services->addServiceManipulator( "SlotRoleRegistry", $manipulator );
 	}
+
+    /**
+     * @inheritDoc
+     */
+    public function onResourceLoaderGetConfigVars( array &$vars, $skin, Config $config ): void {
+        $vars['wgWSSlotsDefinedSlots'] = $config->get( 'WSSlotsDefinedSlots' );
+        $vars['wgKnownRoles'] = MediaWikiServices::getInstance()->getSlotRoleRegistry()->getKnownRoles();
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function onBeforeInitialize( $title, $unused, $output, $user, $request, $mediaWiki ): void {
+        $overrides = MediaWikiServices::getInstance()->getMainConfig()->get( "WSSlotsOverrideActions" );
+        // We cannot use $mediaWiki->getAction() here, because that reads from the Request and gets cached
+        $action = $request->getText( 'action' );
+
+        if ( self::isActionOverridden( $action, $overrides ) && isset( self::AVAILABLE_ACTION_OVERRIDES[$action] ) ) {
+            $request->setVal( 'action', self::AVAILABLE_ACTION_OVERRIDES[$action] );
+        }
+    }
 
 	/**
 	 * Allow extensions to add libraries to Scribunto.
@@ -170,34 +196,6 @@ class WSSlotsHooks implements
 	}
 
 	/**
-	 * Hook to extend the original RawAction on demand to fetch contents from a specific slot.
-	 *
-	 * @link https://www.mediawiki.org/wiki/Manual:Hooks/BeforeInitialize
-	 *
-	 * @param Title &$title
-	 * @param mixed unused
-	 * @param OutputPage $output
-	 * @param User $user
-	 * @param WebRequest $request
-	 * @param MediaWiki $mediaWiki
-	 * @return bool
-	 */
-	public static function onBeforeInitialize(
-		Title &$title, $unused, OutputPage $output, User $user, WebRequest $request, MediaWiki $mediaWiki
-	) {
-		$overrides = MediaWikiServices::getInstance()->getMainConfig()->get( "WSSlotsOverrideActions" );
-
-		// We cannot use $mediaWiki->getAction() here, because that reads from the Request and gets cached
-		$action = $request->getText( 'action' );
-
-		if ( self::isActionOverridden( $action, $overrides ) && isset( self::AVAILABLE_ACTION_OVERRIDES[$action] ) ) {
-			$request->setVal( 'action', self::AVAILABLE_ACTION_OVERRIDES[$action] );
-		}
-
-		return true;
-	}
-
-	/**
 	 * Checks whether the given action is overridden.
 	 *
 	 * @param string $action
@@ -215,20 +213,5 @@ class WSSlotsHooks implements
 
 		// Anything else, return false.
 		return false;
-	}
-
-	/**
-	 * Hook to expose the WSSlots configuration array as javascript variable.
-	 *
-	 * @link https://www.mediawiki.org/wiki/Manual:Hooks/ResourceLoaderGetConfigVars
-	 *
-	 * @param array &$vars - Array of variables to be added into the output of the startup module.
-	 * @param string $skin Current skin name to restrict config variables to a certain skin (if needed)
-	 * @param Config $config
-	 * @return bool
-	 */
-	public static function onResourceLoaderGetConfigVars( array &$vars, string $skin, \Config $config ) {
-		$vars['wgWSSlotsDefinedSlots'] = $config->get( 'WSSlotsDefinedSlots' );
-		return true;
 	}
 }

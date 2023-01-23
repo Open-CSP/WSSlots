@@ -28,10 +28,10 @@
     "ParserFirstCallInit": "main",
     "ListDefinedTags": "main",
     "ChangeTagsListActive": "main",
+    "ResourceLoaderGetConfigVars": "main",
+    "BeforeInitialize": "main",
     "SMW::Store::BeforeDataUpdateComplete": "\\WSSlots\\WSSlotsHooks::onBeforeDataUpdateComplete",
     "ScribuntoExternalLibraries": "\\WSSlots\\WSSlotsHooks::onScribuntoExternalLibraries",
-    "ResourceLoaderGetConfigVars": "\\WSSlots\\WSSlotsHooks::onResourceLoaderGetConfigVars",
-    "BeforeInitialize": "\\WSSlots\\WSSlotsHooks::onBeforeInitialize"
   },
   "HookHandlers": {
     "main": {
