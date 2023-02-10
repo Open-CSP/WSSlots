@@ -2,7 +2,9 @@
 
 namespace WSSlots\Scribunto;
 
+use MediaWiki\MediaWikiServices;
 use MWException;
+use RequestContext;
 use TextContent;
 use WikibaseSolutions\MediaWikiTemplateParser\RecursiveParser;
 use WSSlots\WikiPageTrait;
@@ -42,6 +44,17 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 			return [ null ];
 		}
 
+		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
+			'read',
+			RequestContext::getMain()->getUser(),
+			$wikiPage->getTitle()
+		);
+
+		if ( !$userCan ) {
+			// The user is not allowed to read the page
+			return [ null ];
+		}
+
 		$contentObject = WSSlots::getSlotContent( $wikiPage, $slotName );
 
 		if ( !$contentObject instanceof TextContent ) {
@@ -67,6 +80,17 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 			return [ null ];
 		}
 
+		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
+			'read',
+			RequestContext::getMain()->getUser(),
+			$wikiPage->getTitle()
+		);
+
+		if ( !$userCan ) {
+			// The user is not allowed to read the page
+			return [ null ];
+		}
+
 		$contentObject = WSSlots::getSlotContent( $wikiPage, $slotName );
 
 		if ( !$contentObject instanceof TextContent ) {
@@ -88,6 +112,17 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 		$wikiPage = $this->getWikiPage( $pageName );
 
 		if ( !$wikiPage ) {
+			return [ null ];
+		}
+
+		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
+			'read',
+			RequestContext::getMain()->getUser(),
+			$wikiPage->getTitle()
+		);
+
+		if ( !$userCan ) {
+			// The user is not allowed to read the page
 			return [ null ];
 		}
 
