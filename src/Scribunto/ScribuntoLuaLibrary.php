@@ -21,7 +21,7 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 		$interfaceFuncs = [
 			'slotContent' => [ $this, 'slotContent' ],
 			'slotTemplates' => [ $this, 'slotTemplates' ],
-            'slotContentModel' => [ $this, 'slotContentModel' ]
+			'slotContentModel' => [ $this, 'slotContentModel' ]
 		];
 
 		$this->getEngine()->registerInterface( __DIR__ . '/' . 'mw.wsslots.lua', $interfaceFuncs, [] );
@@ -76,29 +76,29 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 		return [ $this->convertToLuaTable( ( new RecursiveParser() )->parse( $contentObject->serialize() ) ) ];
 	}
 
-    /**
-     * Returns the content model of the specified slot.
-     *
-     * @param string $slotName
-     * @param string|null $pageName
-     * @return array
-     * @throws MWException
-     */
-    public function slotContentModel( string $slotName, ?string $pageName = null ): array {
-        $wikiPage = $this->getWikiPage( $pageName );
+	/**
+	 * Returns the content model of the specified slot.
+	 *
+	 * @param string $slotName
+	 * @param string|null $pageName
+	 * @return array
+	 * @throws MWException
+	 */
+	public function slotContentModel( string $slotName, ?string $pageName = null ): array {
+		$wikiPage = $this->getWikiPage( $pageName );
 
-        if ( !$wikiPage ) {
-            return [ null ];
-        }
+		if ( !$wikiPage ) {
+			return [ null ];
+		}
 
-        $contentObject = WSSlots::getSlotContent( $wikiPage, $slotName );
+		$contentObject = WSSlots::getSlotContent( $wikiPage, $slotName );
 
-        if ( !$contentObject instanceof TextContent ) {
-            return [ null ];
-        }
+		if ( !$contentObject instanceof TextContent ) {
+			return [ null ];
+		}
 
-        return [ $contentObject->getModel() ];
-    }
+		return [ $contentObject->getModel() ];
+	}
 
 	/**
 	 * @param $array
