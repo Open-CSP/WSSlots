@@ -115,6 +115,17 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 			return [ null ];
 		}
 
+        $userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
+            'read',
+            RequestContext::getMain()->getUser(),
+            $wikiPage->getTitle()
+        );
+
+        if ( !$userCan ) {
+            // The user is not allowed to read the page
+            return [ null ];
+        }
+
 		$contentObject = WSSlots::getSlotContent( $wikiPage, $slotName );
 
 		if ( !$contentObject instanceof TextContent ) {
