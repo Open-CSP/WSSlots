@@ -71,16 +71,22 @@ When set to true, all actions are replaced by slot-aware actions when available.
 The extension provides the `#slot` parser function to get the content of a specific slot. For example, `{{#slot: main}}` returns the content of the `main` slot. You can optionally specify a page as the second parameter. For instance, `{{#slot: main | Foobar }}` gets the `main` slot from the page `Foobar`. An additional third parameter can be set to anything to have the returned content parsed.
 
 ### `#slotdata`
-The extension provides the `#slotdata` parser function to get JSON content from a specific slot. The syntax of the parser function is as follows:
+The extension provides the `#slotdata` parser function to get structured content from a specific slot. The syntax of the parser function is as follows:
 
 ```
-{{#slotdata: <slotname> | [<pagename> | [<key> | [<search>]]]}}
+{{#slotdata: <slotname> | [<pagename> | [<key> | [<search> | [<compat>]]]]}}
 ```
 
 * `<slotname>`: The name of the slot to get the data from.
 * `<pagename>` (optional, default: `{{FULLPAGENAME}}` ): The name of the page to get the data from.
 * `<key>` (optional, default: ``): The key of the value to return (dot-separated list of indices).
 * `<search>` (optional, default: ``): The search to perform before looking for the key, should be of the form `key=value`. If the given key-value pair is not unique, the first enclosing block that contains that pair will be used.
+* `<compat>` (optional, default: false): Whether to return the result in a manner that [ArrayFunctions](https://www.mediawiki.org/wiki/Extension:ArrayFunctions) understands. Requires ArrayFunctions to be installed and enabled.
+
+This function is aware of the content model of the page. This means that it parses a page differently, depending on what the content model is. The content models from which it can extract structured data are:
+
+* `JsonContent`: Parses the page as JSON;
+* `WikitextContent`: Parses the page using a wikitext parser to get template calls.
 
 ### `#slottemplates` (deprecated)
 The extension also provides the `#slottemplates` parser function that returns the templates in a specific slot as a multidimensional array. This parser function required WSArrays to be installed.
