@@ -4,13 +4,13 @@ namespace WSSlots\API;
 
 use ApiBase;
 use ApiUsageException;
+use MediaWiki\MediaWikiServices;
 use MediaWiki\Storage\SlotRecord;
 use MWContentSerializationException;
 use MWException;
 use Wikimedia\ParamValidator\ParamValidator;
 use WSSlots\Logger;
 use WSSlots\WSSlots;
-use MediaWiki\MediaWikiServices;
 
 /**
  * A slot-aware module that allows for editing and creating pages.
@@ -41,8 +41,8 @@ class ApiEditSlots extends ApiBase {
 
 		$slotUpdates = [];
 
-        $slots = MediaWikiServices::getInstance()->getSlotRoleRegistry()->getKnownRoles();
-        foreach ( $slots as $slotName ) {
+		$slots = MediaWikiServices::getInstance()->getSlotRoleRegistry()->getKnownRoles();
+		foreach ( $slots as $slotName ) {
 			if ( isset( $params[ self::maskSlotName( $slotName ) ] ) ) {
 				$slotUpdates[ $slotName ] = $params[ self::maskSlotName( $slotName ) ];
 			}
@@ -66,7 +66,7 @@ class ApiEditSlots extends ApiBase {
 
 			$this->dieWithError( $message, $code );
 		} else {
-			$apiResult->addValue( null, 'editslots', ['result' => 'success'] );
+			$apiResult->addValue( null, 'editslots', [ 'result' => 'success' ] );
 		}
 	}
 
@@ -111,10 +111,10 @@ class ApiEditSlots extends ApiBase {
 
 		$slots = MediaWikiServices::getInstance()->getSlotRoleRegistry()->getKnownRoles();
 		foreach ( $slots as $slotName ) {
-			$params[self::maskSlotName($slotName)] = [
-                ApiBase::PARAM_TYPE => 'text',
-                ApiBase::PARAM_HELP_MSG => 'apihelp-editslots-param-slot'
-            ];
+			$params[self::maskSlotName( $slotName )] = [
+				ApiBase::PARAM_TYPE => 'text',
+				ApiBase::PARAM_HELP_MSG => 'apihelp-editslots-param-slot'
+			];
 		}
 
 		return $params;
@@ -138,12 +138,12 @@ class ApiEditSlots extends ApiBase {
 		];
 	}
 
-    /**
-     * Masks the given slot name with the prefix "slot_" for use as a parameter name.
-     *
-     * @param string $slotName
-     * @return string
-     */
+	/**
+	 * Masks the given slot name with the prefix "slot_" for use as a parameter name.
+	 *
+	 * @param string $slotName
+	 * @return string
+	 */
 	private static function maskSlotName( string $slotName ): string {
 		return 'slot_' . $slotName;
 	}

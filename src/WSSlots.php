@@ -44,7 +44,7 @@ class WSSlots {
 		bool $append = false,
 		string $watchlist = ""
 	) {
-		return self::editSlots( $user, $wikiPage, [$slotName => $text], $summary, $append, $watchlist );
+		return self::editSlots( $user, $wikiPage, [ $slotName => $text ], $summary, $append, $watchlist );
 	}
 
 	/**
@@ -61,12 +61,12 @@ class WSSlots {
 	 * @throws MWException Should not happen
 	 */
 	final public static function editSlots(
-		User     $user,
+		User $user,
 		WikiPage $wikiPage,
-		array    $slotUpdates,
-		string   $summary,
-		bool     $append = false,
-		string   $watchlist = ""
+		array $slotUpdates,
+		string $summary,
+		bool $append = false,
+		string $watchlist = ""
 	) {
 		$logger = Logger::getLogger();
 
@@ -149,8 +149,8 @@ class WSSlots {
 			}
 
 			if ( $slotName !== SlotRecord::MAIN ) {
-                // Note: An in_array check is not necessary because array_unique is called
-                // in pageUpdater->computeEffectiveTags()
+				// Note: An in_array check is not necessary because array_unique is called
+				// in pageUpdater->computeEffectiveTags()
 				$pageUpdater->addTag( 'wsslots-slot-edit' );
 			}
 		}

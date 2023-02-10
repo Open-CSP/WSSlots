@@ -50,44 +50,44 @@ class SlotDataParserFunction {
 			return '';
 		}
 
-        if ( $contentObject instanceof \JsonContent ) {
-            $result = $this->handleJSON( $contentObject->getText() );
-        } elseif ( $contentObject instanceof \WikitextContent ) {
-            $result = $this->handleWikitext( $contentObject->getText() );
-        } else {
-            return '';
-        }
+		if ( $contentObject instanceof \JsonContent ) {
+			$result = $this->handleJSON( $contentObject->getText() );
+		} elseif ( $contentObject instanceof \WikitextContent ) {
+			$result = $this->handleWikitext( $contentObject->getText() );
+		} else {
+			return '';
+		}
 
 		if ( $result === null ) {
 			return '';
 		}
 
-        if ( !empty( $search ) ) {
-            $searchParts = explode( '=', $search, 2 );
+		if ( !empty( $search ) ) {
+			$searchParts = explode( '=', $search, 2 );
 
-            if ( count( $searchParts ) < 2 ) {
-                return null;
-            }
+			if ( count( $searchParts ) < 2 ) {
+				return null;
+			}
 
-            $result = $this->findBlockByValue( trim( $searchParts[0] ), trim( $searchParts[1] ), $result );
+			$result = $this->findBlockByValue( trim( $searchParts[0] ), trim( $searchParts[1] ), $result );
 
-            if ( $result === null ) {
-                return null;
-            }
-        }
+			if ( $result === null ) {
+				return null;
+			}
+		}
 
-        if ( !empty( $key ) ) {
-            $result = $this->findBlockByPath( $key, $result );
-        }
+		if ( !empty( $key ) ) {
+			$result = $this->findBlockByPath( $key, $result );
+		}
 
-        if (
-            filter_var( $arrayFunctionsCompat, FILTER_VALIDATE_BOOLEAN ) &&
-            ExtensionRegistry::getInstance()->isLoaded( 'ArrayFunctions' )
-        ) {
-            $result = Utils::export( $result );
-        } else {
-            $result = is_array( $result ) ? json_encode( $result ) : strval( $result );
-        }
+		if (
+			filter_var( $arrayFunctionsCompat, FILTER_VALIDATE_BOOLEAN ) &&
+			ExtensionRegistry::getInstance()->isLoaded( 'ArrayFunctions' )
+		) {
+			$result = Utils::export( $result );
+		} else {
+			$result = is_array( $result ) ? json_encode( $result ) : strval( $result );
+		}
 
 		return [ $result, 'noparse' => true ];
 	}
@@ -108,24 +108,24 @@ class SlotDataParserFunction {
 			return null;
 		}
 
-        return $content->getValue();
+		return $content->getValue();
 	}
 
-    /**
-     * Handles wikitext content.
-     *
-     * @param string $content The wikitext content
-     * @return array|null
-     */
-    private function handleWikitext( string $content ): ?array {
-        try {
-            $content = ( new RecursiveParser() )->parse( $content );
-        } catch ( Error $error ) {
-            return null;
-        }
+	/**
+	 * Handles wikitext content.
+	 *
+	 * @param string $content The wikitext content
+	 * @return array|null
+	 */
+	private function handleWikitext( string $content ): ?array {
+		try {
+			$content = ( new RecursiveParser() )->parse( $content );
+		} catch ( Error $error ) {
+			return null;
+		}
 
-        return $content;
-    }
+		return $content;
+	}
 
 	/**
 	 * Returns the value associated with the given key, or NULL if it does not exist.
