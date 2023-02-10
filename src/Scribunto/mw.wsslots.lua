@@ -42,4 +42,13 @@ function slots.slotContentModel( slotName, pageName )
     return php.slotContentModel( slotName, pageName )
 end
 
+-- slotData
+function slots.slotData( slotName, pageName )
+    if not type( slotName ) == 'string' or not type( pageName ) == 'string' or not type( pageName ) == 'nil' then
+        error( 'Invalid parameter type supplied to mw.slots.slotContentModel()' )
+    end
+
+    return php.slotData( slotName, pageName )
+end
+
 return slots

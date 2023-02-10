@@ -2,6 +2,9 @@
 
 namespace WSSlots\Scribunto;
 
+use Error;
+use FormatJson;
+use JsonContent;
 use MediaWiki\MediaWikiServices;
 use MWException;
 use RequestContext;
@@ -23,7 +26,8 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 		$interfaceFuncs = [
 			'slotContent' => [ $this, 'slotContent' ],
 			'slotTemplates' => [ $this, 'slotTemplates' ],
-			'slotContentModel' => [ $this, 'slotContentModel' ]
+			'slotContentModel' => [ $this, 'slotContentModel' ],
+			'slotData' => [ $this, 'slotData' ]
 		];
 
 		$this->getEngine()->registerInterface( __DIR__ . '/' . 'mw.wsslots.lua', $interfaceFuncs, [] );
@@ -97,7 +101,64 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 			return [ null ];
 		}
 
-		return [ $this->convertToLuaTable( ( new RecursiveParser() )->parse( $contentObject->serialize() ) ) ];
+		try {
+			return [ $this->convertToLuaTable( ( new RecursiveParser() )->parse( $contentObject->serialize() ) ) ];
+		} catch ( Error $error ) {
+			return [ null ];
+		}
+	}
+
+	/**
+	 * This mirrors the functionality of the #slotdata parser function and makes it available
+	 * in Lua. This function omits any advanced selection tools (JSONPath).
+	 *
+	 * @param string $slotName
+	 * @param string|null $pageName
+	 * @return array
+	 * @throws MWException
+	 */
+	public function slotData( string $slotName, ?string $pageName = null ): array {
+		$wikiPage = $this->getWikiPage( $pageName );
+
+		if ( !$wikiPage ) {
+			return [ null ];
+		}
+
+		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
+			'read',
+			RequestContext::getMain()->getUser(),
+			$wikiPage->getTitle()
+		);
+
+		if ( !$userCan ) {
+			// The user is not allowed to read the page
+			return [ null ];
+		}
+
+		$contentObject = WSSlots::getSlotContent( $wikiPage, $slotName );
+
+		if ( $contentObject instanceof JsonContent ) {
+			$result = FormatJson::parse(
+				$contentObject->serialize(),
+				FormatJson::FORCE_ASSOC | FormatJson::TRY_FIXING | FormatJson::STRIP_COMMENTS
+			);
+
+			if ( !$result->isGood() ) {
+				return [ null ];
+			}
+
+			$result = $result->getValue();
+		} elseif ( $contentObject instanceof \WikitextContent ) {
+			try {
+				$result = ( new RecursiveParser() )->parse( $contentObject->serialize() );
+			} catch ( Error $error ) {
+				return [ null ];
+			}
+		} else {
+			return [ null ];
+		}
+
+		return [ $this->convertToLuaTable( $result ) ];
 	}
 
 	/**
