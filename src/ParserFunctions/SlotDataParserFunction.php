@@ -2,6 +2,9 @@
 
 namespace WSSlots\ParserFunctions;
 
+use ArrayFunctions\Utils;
+use Error;
+use ExtensionRegistry;
 use FormatJson;
 use JsonPath\InvalidJsonException;
 use JsonPath\InvalidJsonPathException;
@@ -10,6 +13,7 @@ use MediaWiki\MediaWikiServices;
 use MWException;
 use Parser;
 use TextContent;
+use WikibaseSolutions\MediaWikiTemplateParser\RecursiveParser;
 use WSSlots\WikiPageTrait;
 use WSSlots\WSSlots;
 
@@ -30,7 +34,7 @@ class SlotDataParserFunction {
 	 * @return string|array
 	 * @throws MWException
 	 */
-	public function execute( Parser $parser, string $slotName, string $pageName = null, string $key = null, string $search = null ) {
+	public function execute( Parser $parser, string $slotName, string $pageName = null, string $key = null, string $search = null, bool $arrayFunctionsCompat = null ) {
 		if ( !$pageName ) {
 			return '';
 		}
@@ -58,10 +62,43 @@ class SlotDataParserFunction {
 			return '';
 		}
 
-		$result = $this->handleJSON( $contentObject->getText(), (string)$key, $search );
+		if ( $contentObject instanceof \JsonContent ) {
+			$result = $this->handleJSON( $contentObject->getText() );
+		} elseif ( $contentObject instanceof \WikitextContent ) {
+			$result = $this->handleWikitext( $contentObject->getText() );
+		} else {
+			return '';
+		}
 
 		if ( $result === null ) {
 			return '';
+		}
+
+		if ( !empty( $search ) ) {
+			$searchParts = explode( '=', $search, 2 );
+
+			if ( count( $searchParts ) < 2 ) {
+				return null;
+			}
+
+			$result = $this->findBlockByValue( trim( $searchParts[0] ), trim( $searchParts[1] ), $result );
+
+			if ( $result === null ) {
+				return null;
+			}
+		}
+
+		if ( !empty( $key ) ) {
+			$result = $this->findBlockByPath( $key, $result );
+		}
+
+		if (
+			filter_var( $arrayFunctionsCompat, FILTER_VALIDATE_BOOLEAN ) &&
+			ExtensionRegistry::getInstance()->isLoaded( 'ArrayFunctions' )
+		) {
+			$result = Utils::export( $result );
+		} else {
+			$result = is_array( $result ) ? json_encode( $result ) : strval( $result );
 		}
 
 		return [ $result, 'noparse' => true ];
@@ -71,11 +108,9 @@ class SlotDataParserFunction {
 	 * Handles JSON content.
 	 *
 	 * @param string $content The JSON content
-	 * @param string $key The key to search
-	 * @param string|null $search
-	 * @return string|null
+	 * @return array|null
 	 */
-	private function handleJSON( string $content, string $key, ?string $search ): ?string {
+	private function handleJSON( string $content ): ?array {
 		$content = FormatJson::parse(
 			$content,
 			FormatJson::FORCE_ASSOC | FormatJson::TRY_FIXING | FormatJson::STRIP_COMMENTS
@@ -85,31 +120,23 @@ class SlotDataParserFunction {
 			return null;
 		}
 
-		$content = $content->getValue();
+		return $content->getValue();
+	}
 
-		if ( $search !== null ) {
-			$searchParts = explode( '=', $search, 2 );
-
-			if ( count( $searchParts ) < 2 ) {
-				return null;
-			}
-
-			$content = $this->findBlockByValue(
-				trim( $searchParts[0] ),
-				trim( $searchParts[1] ),
-				$content
-			);
-
-			if ( $content === null ) {
-				return null;
-			}
+	/**
+	 * Handles wikitext content.
+	 *
+	 * @param string $content The wikitext content
+	 * @return array|null
+	 */
+	private function handleWikitext( string $content ): ?array {
+		try {
+			$content = ( new RecursiveParser() )->parse( $content );
+		} catch ( Error $error ) {
+			return null;
 		}
 
-		$value = $this->findBlockByPath( $key, $content );
-
-		return is_array( $value ) ?
-			json_encode( $value ) :
-			strval( $value );
+		return $content;
 	}
 
 	/**
@@ -120,16 +147,16 @@ class SlotDataParserFunction {
 	 * @return mixed
 	 */
 	private function findBlockByPath( string $path, array $array ) {
-        if ( substr( $path, 0, 2 ) !== '$.' ) {
-            $path = '$.' . $path;
-        }
+		if ( substr( $path, 0, 2 ) !== '$.' ) {
+			$path = '$.' . $path;
+		}
 
-        try {
-            $jsonObject = new JsonObject( $array );
-            return $jsonObject->get( $path );
-        } catch ( InvalidJsonException|InvalidJsonPathException $exception ) {
-            return null;
-        }
+		try {
+			$jsonObject = new JsonObject( $array );
+			return $jsonObject->get( $path );
+		} catch ( InvalidJsonException | InvalidJsonPathException $exception ) {
+			return null;
+		}
 	}
 
 	/**

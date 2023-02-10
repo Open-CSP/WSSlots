@@ -22,7 +22,8 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 	public function register(): void {
 		$interfaceFuncs = [
 			'slotContent' => [ $this, 'slotContent' ],
-			'slotTemplates' => [ $this, 'slotTemplates' ]
+			'slotTemplates' => [ $this, 'slotTemplates' ],
+			'slotContentModel' => [ $this, 'slotContentModel' ]
 		];
 
 		$this->getEngine()->registerInterface( __DIR__ . '/' . 'mw.wsslots.lua', $interfaceFuncs, [] );
@@ -97,6 +98,30 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 		}
 
 		return [ $this->convertToLuaTable( ( new RecursiveParser() )->parse( $contentObject->serialize() ) ) ];
+	}
+
+	/**
+	 * Returns the content model of the specified slot.
+	 *
+	 * @param string $slotName
+	 * @param string|null $pageName
+	 * @return array
+	 * @throws MWException
+	 */
+	public function slotContentModel( string $slotName, ?string $pageName = null ): array {
+		$wikiPage = $this->getWikiPage( $pageName );
+
+		if ( !$wikiPage ) {
+			return [ null ];
+		}
+
+		$contentObject = WSSlots::getSlotContent( $wikiPage, $slotName );
+
+		if ( !$contentObject instanceof TextContent ) {
+			return [ null ];
+		}
+
+		return [ $contentObject->getModel() ];
 	}
 
 	/**

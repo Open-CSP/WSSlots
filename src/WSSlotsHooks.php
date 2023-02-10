@@ -2,10 +2,14 @@
 
 namespace WSSlots;
 
+use Config;
 use MediaWiki\ChangeTags\Hook\ChangeTagsListActiveHook;
 use MediaWiki\ChangeTags\Hook\ListDefinedTagsHook;
+use MediaWiki\Hook\BeforeInitializeHook;
 use MediaWiki\Hook\MediaWikiServicesHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
+use MediaWiki\MediaWikiServices;
+use MediaWiki\ResourceLoader\Hook\ResourceLoaderGetConfigVarsHook;
 use MWException;
 use RequestContext;
 use SMW\ParserData;
@@ -25,8 +29,14 @@ class WSSlotsHooks implements
 	ListDefinedTagsHook,
 	ChangeTagsListActiveHook,
 	ParserFirstCallInitHook,
-	MediaWikiServicesHook
+	MediaWikiServicesHook,
+	ResourceLoaderGetConfigVarsHook,
+	BeforeInitializeHook
 {
+	private const AVAILABLE_ACTION_OVERRIDES = [
+		'raw' => 'rawslot'
+	];
+
 	/**
 	 * @inheritDoc
 	 */
@@ -61,6 +71,27 @@ class WSSlotsHooks implements
 		$serviceManipulator = new SlotRoleRegistryServiceManipulator( $config );
 		$manipulator = [ $serviceManipulator, "defineRoles" ];
 		$services->addServiceManipulator( "SlotRoleRegistry", $manipulator );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function onResourceLoaderGetConfigVars( array &$vars, $skin, Config $config ): void {
+		$vars['wgWSSlotsDefinedSlots'] = $config->get( 'WSSlotsDefinedSlots' );
+		$vars['wgKnownRoles'] = MediaWikiServices::getInstance()->getSlotRoleRegistry()->getKnownRoles();
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function onBeforeInitialize( $title, $unused, $output, $user, $request, $mediaWiki ): void {
+		$overrides = MediaWikiServices::getInstance()->getMainConfig()->get( "WSSlotsOverrideActions" );
+		// We cannot use $mediaWiki->getAction() here, because that reads from the Request and gets cached
+		$action = $request->getText( 'action' );
+
+		if ( self::isActionOverridden( $action, $overrides ) && isset( self::AVAILABLE_ACTION_OVERRIDES[$action] ) ) {
+			$request->setVal( 'action', self::AVAILABLE_ACTION_OVERRIDES[$action] );
+		}
 	}
 
 	/**
@@ -157,5 +188,25 @@ class WSSlotsHooks implements
 		}
 
 		return true;
+	}
+
+	/**
+	 * Checks whether the given action is overridden.
+	 *
+	 * @param string $action
+	 * @param bool|array $overrides
+	 * @return bool
+	 */
+	private static function isActionOverridden( string $action, $overrides ): bool {
+		if ( is_bool( $overrides ) ) {
+			return $overrides;
+		}
+
+		if ( is_array( $overrides ) ) {
+			return in_array( $action, $overrides, true );
+		}
+
+		// Anything else, return false.
+		return false;
 	}
 }

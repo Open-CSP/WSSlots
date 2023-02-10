@@ -44,6 +44,30 @@ class WSSlots {
 		bool $append = false,
 		string $watchlist = ""
 	) {
+		return self::editSlots( $user, $wikiPage, [ $slotName => $text ], $summary, $append, $watchlist );
+	}
+
+	/**
+	 * @param User $user The user that performs the edit
+	 * @param WikiPage $wikiPage The page to edit
+	 * @param array $slotUpdates Associative array with slotName as key, text as value
+	 * @param string $summary The summary to use
+	 * @param bool $append Whether to append to or replace the current text
+	 * @param string $watchlist Set to "nochange" to suppress watchlist notifications
+	 *
+	 * @return true|array True on success, or an error message with an error code otherwise
+	 *
+	 * @throws \MWContentSerializationException Should not happen
+	 * @throws MWException Should not happen
+	 */
+	final public static function editSlots(
+		User $user,
+		WikiPage $wikiPage,
+		array $slotUpdates,
+		string $summary,
+		bool $append = false,
+		string $watchlist = ""
+	) {
 		$logger = Logger::getLogger();
 
 		$titleObject = $wikiPage->getTitle();
@@ -56,83 +80,87 @@ class WSSlots {
 			return [ wfMessage( "wsslots-error-invalid-wikipage-object" ) ];
 		}
 
-		$logger->debug( 'Editing slot {slotName} on page {page}', [
-			'slotName' => $slotName,
-			'page' => $titleObject->getFullText()
-		] );
-
-		// Make sure the slot we are editing exists
-		if ( !$slotRoleRegistry->isDefinedRole( $slotName ) ) {
-			$logger->alert( 'Tried to edit non-existent slot {slotName} on page {page}', [
+		foreach ( $slotUpdates as $slotName => $text ) {
+			$logger->debug( 'Editing slot {slotName} on page {page}', [
 				'slotName' => $slotName,
 				'page' => $titleObject->getFullText()
 			] );
 
-			return [ wfMessage( "wsslots-apierror-unknownslot", $slotName ), "unknownslot" ];
-		}
+			// Make sure the slot we are editing exists
+			if ( !$slotRoleRegistry->isDefinedRole( $slotName ) ) {
+				$logger->alert( 'Tried to edit non-existent slot {slotName} on page {page}', [
+					'slotName' => $slotName,
+					'page' => $titleObject->getFullText()
+				] );
 
-		// Alter $text when the $append parameter is set
-		if ( $append ) {
-			// We want to append the given text to the current page, instead of replacing the content
-			$content = self::getSlotContent( $wikiPage, $slotName );
+				return [ wfMessage( "wsslots-apierror-unknownslot", $slotName ), "unknownslot" ];
+			}
 
-			if ( $content !== null ) {
-				if ( !( $content instanceof TextContent ) ) {
-					$slotContentHandler = $content->getContentHandler();
-					$modelId = $slotContentHandler->getModelID();
+			// Alter $text when the $append parameter is set
+			if ( $append ) {
+				// We want to append the given text to the current page, instead of replacing the content
+				$content = self::getSlotContent( $wikiPage, $slotName );
 
-					$logger->alert( 'Tried to append to slot {slotName} with non-textual content model {modelId} while editing page {page}', [
-						'slotName' => $slotName,
-						'modelId' => $modelId,
-						'page' => $titleObject->getFullText()
-					] );
+				if ( $content !== null ) {
+					if ( !( $content instanceof TextContent ) ) {
+						$slotContentHandler = $content->getContentHandler();
+						$modelId = $slotContentHandler->getModelID();
 
-					return [ wfMessage( "apierror-appendnotsupported" ), $modelId ];
+						$logger->alert( 'Tried to append to slot {slotName} with non-textual content model {modelId} while editing page {page}', [
+							'slotName' => $slotName,
+							'modelId' => $modelId,
+							'page' => $titleObject->getFullText()
+						] );
+
+						return [ wfMessage( "apierror-appendnotsupported" ), $modelId ];
+					}
+
+					/** @var string $text */
+					$contentText = $content->serialize();
+					$text = $contentText . $text;
+				}
+			}
+
+			if ( $text === "" && $slotName !== SlotRecord::MAIN ) {
+				// Remove the slot if $text is empty and the slot name is not MAIN
+				$logger->debug( 'Removing slot {slotName} since it is empty', [
+					'slotName' => $slotName
+				] );
+
+				$pageUpdater->removeSlot( $slotName );
+			} else {
+				// Set the content for the slot we want to edit
+				if ( $oldRevisionRecord !== null && $oldRevisionRecord->hasSlot( $slotName ) ) {
+					$modelId = $oldRevisionRecord
+						->getSlot( $slotName )
+						->getContent()
+						->getContentHandler()
+						->getModelID();
+				} else {
+					$modelId = $slotRoleRegistry
+						->getRoleHandler( $slotName )
+						->getDefaultModel( $titleObject );
 				}
 
-				/** @var string $text */
-				$contentText = $content->serialize();
-				$text = $contentText . $text;
+				$logger->debug( 'Setting content in PageUpdater' );
+
+				$slotContent = ContentHandler::makeContent( $text, $titleObject, $modelId );
+				$pageUpdater->setContent( $slotName, $slotContent );
+			}
+
+			if ( $slotName !== SlotRecord::MAIN ) {
+				// Note: An in_array check is not necessary because array_unique is called
+				// in pageUpdater->computeEffectiveTags()
+				$pageUpdater->addTag( 'wsslots-slot-edit' );
 			}
 		}
 
-		if ( $text === "" && $slotName !== SlotRecord::MAIN ) {
-			// Remove the slot if $text is empty and the slot name is not MAIN
-			$logger->debug( 'Removing slot {slotName} since it is empty', [
-				'slotName' => $slotName
-			] );
-
-			$pageUpdater->removeSlot( $slotName );
-		} else {
-			// Set the content for the slot we want to edit
-			if ( $oldRevisionRecord !== null && $oldRevisionRecord->hasSlot( $slotName ) ) {
-				$modelId = $oldRevisionRecord
-					->getSlot( $slotName )
-					->getContent()
-					->getContentHandler()
-					->getModelID();
-			} else {
-				$modelId = $slotRoleRegistry
-					->getRoleHandler( $slotName )
-					->getDefaultModel( $titleObject );
-			}
-
-			$logger->debug( 'Setting content in PageUpdater' );
-
-			$slotContent = ContentHandler::makeContent( $text, $titleObject, $modelId );
-			$pageUpdater->setContent( $slotName, $slotContent );
-		}
-
-		if ( $oldRevisionRecord === null && $slotName !== SlotRecord::MAIN ) {
+		if ( $oldRevisionRecord === null && !isset( $slotUpdates[SlotRecord::MAIN] ) ) {
 			// The 'main' content slot MUST be set when creating a new page
 			$logger->debug( 'Setting empty "main" slot' );
 
 			$main_content = ContentHandler::makeContent( "", $titleObject );
 			$pageUpdater->setContent( SlotRecord::MAIN, $main_content );
-		}
-
-		if ( $slotName !== SlotRecord::MAIN ) {
-			$pageUpdater->addTag( 'wsslots-slot-edit' );
 		}
 
 		$flags = EDIT_INTERNAL;
