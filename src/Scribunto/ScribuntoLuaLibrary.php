@@ -146,6 +146,8 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
             if ( !$result->isGood() ) {
                 return [ null ];
             }
+
+            $result = $result->getValue();
         } elseif ( $contentObject instanceof \WikitextContent ) {
             try {
                 $result = ( new RecursiveParser() )->parse( $contentObject->serialize() );
