@@ -99,9 +99,43 @@ The syntax of the parser function is as follows:
 {{#slottemplates: <slotname> | <pagename> | <arrayname> | <recursive> }}
 ```
 
-## Actions ##
+## Lua functions
 
-### `rawslot` ###
+The following Lua functions are available:
+
+### `mw.slots.slotContent(slotName, pageName)`
+
+Mirrors the functionality of the #slot parser function and makes it available in Lua. It takes the following parameters:
+
+* `slotName` (required, string): The name of the slot to get the content for;
+* `pageName` (optional, string, default={{PAGENAME}}): The name of the page to get the slot from.
+
+### `mw.slots.slotTemplates(slotName, pageName)` (deprecated)
+
+Mirrors the functionality of the #slottemplates parser function and makes it available in Lua.  It takes the following parameters:
+
+* `slotName` (required, string): The name of the slot to get the templates for;
+* `pageName` (optional, string, default={{PAGENAME}}): The name of the page to get the slot from.
+
+This function is deprecated and will be replaced by `mw.slots.slotData()` soon.
+
+### `mw.slots.slotContentModel(slotName, pageName)`
+
+Returns the content model of the specified slot. It takes the following parameters:
+
+* `slotName` (required, string): The name of the slot to get the content model for;
+* `pageName` (optional, string, default={{PAGENAME}}): The name of the page to get the slot from.
+
+### `mw.slots.slotData(slotName, pageName)`
+
+Mirrors the functionality of the #slotdata parser function and makes it available in Lua. This function omits any advanced selection tools (JSONPath). It takes the following parameters:
+
+* `slotName` (required, string): The name of the slot to get the data for;
+* `pageName` (optional, string, default={{PAGENAME}}): The name of the page to get the slot from.
+
+## Actions
+
+### `rawslot`
 Slot-aware version of `action=raw` (see [RawAction](https://m.mediawiki.org/wiki/Manual:RawAction.php)). Returns the content of the specified slot as raw value (format depends on the slot content model). Example:
 
 ```
