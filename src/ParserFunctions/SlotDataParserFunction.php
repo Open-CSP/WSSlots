@@ -101,7 +101,7 @@ class SlotDataParserFunction {
 			$result = is_array( $result ) ? json_encode( $result ) : strval( $result );
 		}
 
-		return [ $result, 'noparse' => true ];
+		return [ $result, 'nowiki' => true ];
 	}
 
 	/**
