@@ -34,7 +34,7 @@ class SlotDataParserFunction {
 	 * @return string|array
 	 * @throws MWException
 	 */
-	public function execute( Parser $parser, string $slotName, string $pageName = null, string $key = null, string $search = null, bool $arrayFunctionsCompat = null ) {
+	public function execute( Parser $parser, string $slotName, string $pageName = null, string $key = null, string $search = null, string $arrayFunctionsCompat = null ) {
 		if ( !$pageName ) {
 			return '';
 		}
@@ -153,7 +153,14 @@ class SlotDataParserFunction {
 
 		try {
 			$jsonObject = new JsonObject( $array );
-			return $jsonObject->get( $path );
+			$matches = $jsonObject->get( $path );
+
+            if ( $matches === false || count( $matches ) < 1 ) {
+                return null;
+            }
+
+            // Return the first match
+            return $matches[0];
 		} catch ( InvalidJsonException | InvalidJsonPathException $exception ) {
 			return null;
 		}
