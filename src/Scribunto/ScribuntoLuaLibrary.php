@@ -34,6 +34,28 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 	}
 
 	/**
+	 * @param \WikiPage $wikiPage
+	 *
+	 * @return bool
+	 */
+	private function userCan( \WikiPage $wikiPage ): bool {
+		// Only do a check for user rights when not in cli mode
+		if ( PHP_SAPI != 'cli' ) {
+			$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
+				'read',
+				RequestContext::getMain()->getUser(),
+				$wikiPage->getTitle()
+			);
+
+			if ( !$userCan ) {
+				// The user is not allowed to read the page
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/**
 	 * This mirrors the functionality of the #slot parser function and makes it available in Lua.
 	 *
 	 * @param string $slotName
@@ -48,13 +70,7 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 			return [ null ];
 		}
 
-		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
-			'read',
-			RequestContext::getMain()->getUser(),
-			$wikiPage->getTitle()
-		);
-
-		if ( !$userCan ) {
+		if ( !$this->userCan( $wikiPage ) ) {
 			// The user is not allowed to read the page
 			return [ null ];
 		}
@@ -84,13 +100,7 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 			return [ null ];
 		}
 
-		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
-			'read',
-			RequestContext::getMain()->getUser(),
-			$wikiPage->getTitle()
-		);
-
-		if ( !$userCan ) {
+		if ( !$this->userCan( $wikiPage ) ) {
 			// The user is not allowed to read the page
 			return [ null ];
 		}
@@ -124,13 +134,7 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 			return [ null ];
 		}
 
-		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
-			'read',
-			RequestContext::getMain()->getUser(),
-			$wikiPage->getTitle()
-		);
-
-		if ( !$userCan ) {
+		if ( !$this->userCan( $wikiPage ) ) {
 			// The user is not allowed to read the page
 			return [ null ];
 		}
@@ -176,13 +180,7 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 			return [ null ];
 		}
 
-		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
-			'read',
-			RequestContext::getMain()->getUser(),
-			$wikiPage->getTitle()
-		);
-
-		if ( !$userCan ) {
+		if ( !$this->userCan( $wikiPage ) ) {
 			// The user is not allowed to read the page
 			return [ null ];
 		}
