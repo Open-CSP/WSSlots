@@ -10,6 +10,7 @@ use MWException;
 use RequestContext;
 use TextContent;
 use WikibaseSolutions\MediaWikiTemplateParser\RecursiveParser;
+use WikiPage;
 use WSSlots\WikiPageTrait;
 use WSSlots\WSSlots;
 
@@ -48,13 +49,7 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 			return [ null ];
 		}
 
-		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
-			'read',
-			RequestContext::getMain()->getUser(),
-			$wikiPage->getTitle()
-		);
-
-		if ( !$userCan ) {
+		if ( !$this->userCan( $wikiPage ) ) {
 			// The user is not allowed to read the page
 			return [ null ];
 		}
@@ -84,13 +79,7 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 			return [ null ];
 		}
 
-		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
-			'read',
-			RequestContext::getMain()->getUser(),
-			$wikiPage->getTitle()
-		);
-
-		if ( !$userCan ) {
+		if ( !$this->userCan( $wikiPage ) ) {
 			// The user is not allowed to read the page
 			return [ null ];
 		}
@@ -124,13 +113,7 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 			return [ null ];
 		}
 
-		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
-			'read',
-			RequestContext::getMain()->getUser(),
-			$wikiPage->getTitle()
-		);
-
-		if ( !$userCan ) {
+		if ( !$this->userCan( $wikiPage ) ) {
 			// The user is not allowed to read the page
 			return [ null ];
 		}
@@ -176,13 +159,7 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 			return [ null ];
 		}
 
-		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
-			'read',
-			RequestContext::getMain()->getUser(),
-			$wikiPage->getTitle()
-		);
-
-		if ( !$userCan ) {
+		if ( !$this->userCan( $wikiPage ) ) {
 			// The user is not allowed to read the page
 			return [ null ];
 		}
@@ -194,6 +171,24 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 		}
 
 		return [ $contentObject->getModel() ];
+	}
+
+	/**
+	 * @param WikiPage $wikiPage
+	 *
+	 * @return bool
+	 */
+	private function userCan( WikiPage $wikiPage ): bool {
+		// Only do a check for user rights when not in cli mode
+		if ( PHP_SAPI === 'cli' ) {
+			return true;
+		}
+
+		return MediaWikiServices::getInstance()->getPermissionManager()->userCan(
+			'read',
+			RequestContext::getMain()->getUser(),
+			$wikiPage->getTitle()
+		);
 	}
 
 	/**
