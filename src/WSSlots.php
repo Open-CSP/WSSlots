@@ -6,7 +6,7 @@ use CommentStoreComment;
 use Content;
 use ContentHandler;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Storage\SlotRecord;
+use MediaWiki\Revision\SlotRecord;
 use MWException;
 use TextContent;
 use User;
