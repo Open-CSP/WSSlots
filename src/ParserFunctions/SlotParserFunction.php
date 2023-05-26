@@ -38,7 +38,7 @@ class SlotParserFunction {
 
 		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
 			'read',
-			$parser->getUser(),
+			method_exists( $parser, 'getUserIdentity' ) ? $parser->getUserIdentity() : $parser->getUser(),
 			$wikiPage->getTitle()
 		);
 
