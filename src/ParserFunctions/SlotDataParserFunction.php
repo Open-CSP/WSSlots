@@ -96,12 +96,10 @@ class SlotDataParserFunction {
 			filter_var( $arrayFunctionsCompat, FILTER_VALIDATE_BOOLEAN ) &&
 			ExtensionRegistry::getInstance()->isLoaded( 'ArrayFunctions' )
 		) {
-			$result = Utils::export( $result );
+			return [ Utils::export( $result ) ];
 		} else {
-			$result = is_array( $result ) ? json_encode( $result ) : strval( $result );
+			return [ is_array( $result ) ? json_encode( $result ) : strval( $result ), 'nowiki' => true ];
 		}
-
-		return [ $result, 'nowiki' => true ];
 	}
 
 	/**
