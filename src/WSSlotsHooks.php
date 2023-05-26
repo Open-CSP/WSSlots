@@ -151,9 +151,6 @@ class WSSlotsHooks implements
 		}
 
 		$mwServices = MediaWikiServices::getInstance();
-		if ( method_exists( $mwServices, 'getContentRenderer' ) ) {
-			$contentRenderer = $mwServices->getContentRenderer();
-		}
 
 		foreach ( $semanticSlots as $slot ) {
 			if ( !$revision->hasSlot( $slot ) ) {
@@ -166,8 +163,8 @@ class WSSlotsHooks implements
 				continue;
 			}
 
-			if ( isset( $contentRenderer ) ) {
-				$parserOutput = $contentRenderer->getParserOutput( $content, $subjectTitle, $revision->getId() );
+			if ( method_exists( $mwServices, 'getContentRenderer' ) ) {
+				$parserOutput = $mwServices->getContentRenderer()->getParserOutput( $content, $subjectTitle, $revision->getId() );
 			} else {
 				$parserOutput = $content->getParserOutput( $subjectTitle, $revision->getId() );
 			}
