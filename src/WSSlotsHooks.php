@@ -150,6 +150,11 @@ class WSSlotsHooks implements
 			return true;
 		}
 
+		$mwServices = MediaWikiServices::getInstance();
+		if ( method_exists( $mwServices, 'getContentRenderer' ) ) {
+			$contentRenderer = $mwServices->getContentRenderer();
+		}
+
 		foreach ( $semanticSlots as $slot ) {
 			if ( !$revision->hasSlot( $slot ) ) {
 				continue;
@@ -161,7 +166,11 @@ class WSSlotsHooks implements
 				continue;
 			}
 
-			$parserOutput = $content->getParserOutput( $subjectTitle, $revision->getId() );
+			if ( isset( $contentRenderer ) ) {
+				$parserOutput = $contentRenderer->getParserOutput( $content, $subjectTitle, $revision->getId() );
+			} else {
+				$parserOutput = $content->getParserOutput( $subjectTitle, $revision->getId() );
+			}
 
 			/** @var SemanticData $slotSemanticData */
 			$slotSemanticData = $parserOutput->getExtensionData( ParserData::DATA_ID );
