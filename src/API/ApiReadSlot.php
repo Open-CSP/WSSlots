@@ -4,7 +4,7 @@ namespace WSSlots\API;
 
 use ApiBase;
 use ApiUsageException;
-use MediaWiki\Storage\SlotRecord;
+use MediaWiki\Revision\SlotRecord;
 use MWException;
 use TextContent;
 use Wikimedia\ParamValidator\ParamValidator;

@@ -5,7 +5,7 @@ namespace WSSlots\API;
 use ApiBase;
 use ApiUsageException;
 use MediaWiki\MediaWikiServices;
-use MediaWiki\Storage\SlotRecord;
+use MediaWiki\Revision\SlotRecord;
 use MWContentSerializationException;
 use MWException;
 use Wikimedia\ParamValidator\ParamValidator;
