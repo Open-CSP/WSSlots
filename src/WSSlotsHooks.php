@@ -12,6 +12,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\ResourceLoader\Hook\ResourceLoaderGetConfigVarsHook;
 use MWException;
 use RequestContext;
+use SMW\DIContainer;
 use SMW\ParserData;
 use SMW\SemanticData;
 use SMW\Store;
@@ -184,8 +185,13 @@ class WSSlotsHooks implements
 
 			// Remove any pre-defined properties that exist in both the main semantic data as well as the slot semantic
 			// data from the main semantic data to prevent them from merging
+			// Except for DIContainers, because these _should_ be merged; the subsemanticdata is saved anyway, so deleting their
+			// relation to the semantic data is a bad idea.
 			foreach ( $slotSemanticData->getProperties() as $property ) {
-				if ( !$property->isUserDefined() ) {
+				if (
+					!( $property instanceof DIContainer )
+					&& !$property->isUserDefined()
+				) {
 					$semanticData->removeProperty( $property );
 				}
 			}
