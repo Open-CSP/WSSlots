@@ -145,9 +145,7 @@ class SlotDataParserFunction {
 	 * @return mixed
 	 */
 	private function findBlockByPath( string $path, array $array ) {
-		if ( substr( $path, 0, 2 ) !== '$.' ) {
-			$path = '$.' . $path;
-		}
+		$path = $this->prefixPath( $path );
 
 		try {
 			$jsonObject = new JsonObject( $array );
@@ -192,4 +190,21 @@ class SlotDataParserFunction {
 
 		return null;
 	}
+
+    /**
+     * @param string $path
+     * @return string
+     */
+    private function prefixPath( string $path ): string {
+        $firstChar = substr( $path, 0, 1 );
+
+        switch ( $firstChar ) {
+            case '$':
+                return $path;
+            case '[':
+                return '$' . $path;
+            default:
+                return '$.' . $path;
+        }
+    }
 }
