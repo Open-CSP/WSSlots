@@ -14,6 +14,7 @@ use MWException;
 use Parser;
 use TextContent;
 use WikibaseSolutions\MediaWikiTemplateParser\RecursiveParser;
+use WSSlots\UserCanTrait;
 use WSSlots\WikiPageTrait;
 use WSSlots\WSSlots;
 
@@ -21,6 +22,7 @@ use WSSlots\WSSlots;
  * Handles the #slotdata parser function.
  */
 class SlotDataParserFunction {
+    use UserCanTrait;
 	use WikiPageTrait;
 
 	/**
@@ -45,13 +47,7 @@ class SlotDataParserFunction {
 			return '';
 		}
 
-		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
-			'read',
-			method_exists( $parser, 'getUserIdentity' ) ? $parser->getUserIdentity() : $parser->getUser(),
-			$wikiPage->getTitle()
-		);
-
-		if ( !$userCan ) {
+		if ( !$this->userCan( $wikiPage ) ) {
 			// The user is not allowed to read the page
 			return '';
 		}

@@ -10,6 +10,7 @@ use Parser;
 use TextContent;
 use WikibaseSolutions\MediaWikiTemplateParser\Parser as DeprecatedParser;
 use WikibaseSolutions\MediaWikiTemplateParser\RecursiveParser;
+use WSSlots\UserCanTrait;
 use WSSlots\WikiPageTrait;
 use WSSlots\WSSlots;
 
@@ -19,6 +20,7 @@ use WSSlots\WSSlots;
  * @deprecated
  */
 class SlotTemplatesParserFunction {
+    use UserCanTrait;
 	use WikiPageTrait;
 
 	/**
@@ -53,13 +55,7 @@ class SlotTemplatesParserFunction {
 			return '';
 		}
 
-		$userCan = MediaWikiServices::getInstance()->getPermissionManager()->userCan(
-			'read',
-			method_exists( $parser, 'getUserIdentity' ) ? $parser->getUserIdentity() : $parser->getUser(),
-			$wikiPage->getTitle()
-		);
-
-		if ( !$userCan ) {
+		if ( !$this->userCan( $wikiPage ) ) {
 			// The user is not allowed to read the page
 			return '';
 		}
