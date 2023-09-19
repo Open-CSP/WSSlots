@@ -5,12 +5,9 @@ namespace WSSlots\Scribunto;
 use Error;
 use FormatJson;
 use JsonContent;
-use MediaWiki\MediaWikiServices;
 use MWException;
-use RequestContext;
 use TextContent;
 use WikibaseSolutions\MediaWikiTemplateParser\RecursiveParser;
-use WikiPage;
 use WSSlots\UserCanTrait;
 use WSSlots\WikiPageTrait;
 use WSSlots\WSSlots;
@@ -19,7 +16,7 @@ use WSSlots\WSSlots;
  * Register the Lua library.
  */
 class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
-    use UserCanTrait;
+	use UserCanTrait;
 	use WikiPageTrait;
 
 	/**

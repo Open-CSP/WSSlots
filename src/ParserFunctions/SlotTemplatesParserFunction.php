@@ -4,7 +4,6 @@ namespace WSSlots\ParserFunctions;
 
 use ComplexArray;
 use Error;
-use MediaWiki\MediaWikiServices;
 use MWException;
 use Parser;
 use TextContent;
@@ -20,7 +19,7 @@ use WSSlots\WSSlots;
  * @deprecated
  */
 class SlotTemplatesParserFunction {
-    use UserCanTrait;
+	use UserCanTrait;
 	use WikiPageTrait;
 
 	/**

@@ -2,7 +2,6 @@
 
 namespace WSSlots\ParserFunctions;
 
-use MediaWiki\MediaWikiServices;
 use MWException;
 use Parser;
 use TextContent;
@@ -14,7 +13,7 @@ use WSSlots\WSSlots;
  * Handles the #slot parser function.
  */
 class SlotParserFunction {
-    use UserCanTrait;
+	use UserCanTrait;
 	use WikiPageTrait;
 
 	/**

@@ -9,7 +9,6 @@ use FormatJson;
 use JsonPath\InvalidJsonException;
 use JsonPath\InvalidJsonPathException;
 use JsonPath\JsonObject;
-use MediaWiki\MediaWikiServices;
 use MWException;
 use Parser;
 use TextContent;
@@ -22,7 +21,7 @@ use WSSlots\WSSlots;
  * Handles the #slotdata parser function.
  */
 class SlotDataParserFunction {
-    use UserCanTrait;
+	use UserCanTrait;
 	use WikiPageTrait;
 
 	/**
@@ -147,12 +146,12 @@ class SlotDataParserFunction {
 			$jsonObject = new JsonObject( $array );
 			$matches = $jsonObject->get( $path );
 
-            if ( $matches === false || count( $matches ) < 1 ) {
-                return null;
-            }
+			if ( $matches === false || count( $matches ) < 1 ) {
+				return null;
+			}
 
-            // Return the first match
-            return $matches[0];
+			// Return the first match
+			return $matches[0];
 		} catch ( InvalidJsonException | InvalidJsonPathException $exception ) {
 			return null;
 		}
@@ -187,20 +186,20 @@ class SlotDataParserFunction {
 		return null;
 	}
 
-    /**
-     * @param string $path
-     * @return string
-     */
-    private function prefixPath( string $path ): string {
-        $firstChar = substr( $path, 0, 1 );
+	/**
+	 * @param string $path
+	 * @return string
+	 */
+	private function prefixPath( string $path ): string {
+		$firstChar = substr( $path, 0, 1 );
 
-        switch ( $firstChar ) {
-            case '$':
-                return $path;
-            case '[':
-                return '$' . $path;
-            default:
-                return '$.' . $path;
-        }
-    }
+		switch ( $firstChar ) {
+			case '$':
+				return $path;
+			case '[':
+				return '$' . $path;
+			default:
+				return '$.' . $path;
+		}
+	}
 }
