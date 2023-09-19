@@ -5,12 +5,10 @@ namespace WSSlots\Scribunto;
 use Error;
 use FormatJson;
 use JsonContent;
-use MediaWiki\MediaWikiServices;
 use MWException;
-use RequestContext;
 use TextContent;
 use WikibaseSolutions\MediaWikiTemplateParser\RecursiveParser;
-use WikiPage;
+use WSSlots\UserCanTrait;
 use WSSlots\WikiPageTrait;
 use WSSlots\WSSlots;
 
@@ -18,6 +16,7 @@ use WSSlots\WSSlots;
  * Register the Lua library.
  */
 class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
+	use UserCanTrait;
 	use WikiPageTrait;
 
 	/**
@@ -171,24 +170,6 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 		}
 
 		return [ $contentObject->getModel() ];
-	}
-
-	/**
-	 * @param WikiPage $wikiPage
-	 *
-	 * @return bool
-	 */
-	private function userCan( WikiPage $wikiPage ): bool {
-		// Only do a check for user rights when not in cli mode
-		if ( PHP_SAPI === 'cli' ) {
-			return true;
-		}
-
-		return MediaWikiServices::getInstance()->getPermissionManager()->userCan(
-			'read',
-			RequestContext::getMain()->getUser(),
-			$wikiPage->getTitle()
-		);
 	}
 
 	/**
