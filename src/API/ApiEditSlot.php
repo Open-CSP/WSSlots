@@ -44,11 +44,17 @@ class ApiEditSlot extends ApiBase {
 			$params["slot"],
 			$params["summary"],
 			$params["append"],
-			$params["watchlist"]
+			$params["watchlist"],
+			$params["prepend"],
+			$params["bot"],
+			$params["minor"],
+			$params["createonly"],
+			$params["nocreate"],
+			$params["suppress"]
 		);
 
 		if ( $result !== true ) {
-			list( $message, $code ) = $result;
+			[ $message, $code ] = $result;
 
 			Logger::getLogger()->alert( 'Editing slot failed while performing edit through the "editslot" API: {message}', [
 				'message' => $message
@@ -78,29 +84,58 @@ class ApiEditSlot extends ApiBase {
 	public function getAllowedParams(): array {
 		return [
 			'title' => [
-				ApiBase::PARAM_TYPE => 'string'
+				ParamValidator::PARAM_TYPE => 'string'
 			],
 			'pageid' => [
-				ApiBase::PARAM_TYPE => 'integer'
+				ParamValidator::PARAM_TYPE => 'integer'
 			],
 			'text' => [
-				ApiBase::PARAM_TYPE => 'text'
+				ParamValidator::PARAM_TYPE => 'text'
 			],
 			'slot' => [
-				ApiBase::PARAM_TYPE => 'text',
+				ParamValidator::PARAM_TYPE => 'text',
 				ParamValidator::PARAM_DEFAULT => SlotRecord::MAIN
 			],
 			'append' => [
-				ApiBase::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_DEFAULT => false
+			],
+			'prepend' => [
+				ParamValidator::PARAM_TYPE => 'boolean',
 				ParamValidator::PARAM_DEFAULT => false
 			],
 			'summary' => [
-				ApiBase::PARAM_TYPE => 'text',
+				ParamValidator::PARAM_TYPE => 'text',
 				ParamValidator::PARAM_DEFAULT => ""
 			],
 			'watchlist' => [
-				ApiBase::PARAM_TYPE => 'text',
-				ParamValidator::PARAM_DEFAULT => ""
+				ParamValidator::PARAM_TYPE => [
+					'watch',
+					'unwatch',
+					'preferences',
+					'nochange',
+				],
+				ParamValidator::PARAM_DEFAULT => "nochange",
+			],
+			'bot' => [
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_DEFAULT => false
+			],
+			'minor' => [
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_DEFAULT => false
+			],
+			'createonly' => [
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_DEFAULT => false
+			],
+			'nocreate' => [
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_DEFAULT => false
+			],
+			'suppress' => [
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_DEFAULT => false
 			]
 		];
 	}
