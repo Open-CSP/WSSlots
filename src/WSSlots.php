@@ -9,6 +9,7 @@ use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
 use MWException;
 use TextContent;
+use Title;
 use User;
 use WikiPage;
 
@@ -28,7 +29,14 @@ class WSSlots {
 	 * @param string $slotName The slot to edit
 	 * @param string $summary The summary to use
 	 * @param bool $append Whether to append to or replace the current text
-	 * @param string $watchlist Set to "nochange" to suppress watchlist notifications
+	 * @param bool $prepend Whether to prepend to the current text.
+	 * @param string $watchlist Unconditionally add (watch) or remove (unwatch) the page from the current user's
+	 *                           watchlist, use preferences (preferences), or do not change watch (nochange, default).
+	 *                           Must be one of the following values: watch, unwatch, preferences, nochange.
+	 * @param bool $bot Whether this edit should be marked as a bot edit
+	 * @param bool $minor Whether this edit should be marked as minor
+	 * @param bool $createonly Don't edit the page if it exists already.
+	 * @param bool $nocreate Don't create the page if it doesn't exist already.
 	 *
 	 * @return true|array True on success, or an error message with an error code otherwise
 	 *
@@ -42,20 +50,44 @@ class WSSlots {
 		string $slotName,
 		string $summary,
 		bool $append = false,
-		string $watchlist = ""
+		bool $prepend = false,
+		string $watchlist = "nochange",
+		bool $bot = false,
+		bool $minor = false,
+		bool $createonly = false,
+		bool $nocreate = false
 	) {
-		return self::editSlots( $user, $wikiPage, [ $slotName => $text ], $summary, $append, $watchlist );
+		return self::editSlots(
+			$user,
+			$wikiPage,
+			[ $slotName => $text ],
+			$summary,
+			$append,
+			$prepend,
+			$watchlist,
+			$bot,
+			$minor,
+			$createonly,
+			$nocreate
+		);
 	}
 
 	/**
-	 * @param User $user The user that performs the edit
-	 * @param WikiPage $wikiPage The page to edit
-	 * @param array $slotUpdates Associative array with slotName as key, text as value
-	 * @param string $summary The summary to use
-	 * @param bool $append Whether to append to or replace the current text
-	 * @param string $watchlist Set to "nochange" to suppress watchlist notifications
+	 * @param User $user The user that performs the edit.
+	 * @param WikiPage $wikiPage The page to edit.
+	 * @param array $slotUpdates Associative array with slotName as key, text as value.
+	 * @param string $summary The summary to use.
+	 * @param bool $append Whether to append to the current text.
+	 * @param bool $prepend Whether to prepend to the current text.
+	 * @param string $watchlist Unconditionally add (watch) or remove (unwatch) the page from the current user's
+	 *                          watchlist, use preferences (preferences), or do not change watch (nochange, default).
+	 *                          Must be one of the following values: watch, unwatch, preferences, nochange.
+	 * @param bool $bot Whether this edit should be marked as a bot edit.
+	 * @param bool $minor Whether this edit should be marked as minor.
+	 * @param bool $createonly Don't edit the page if it exists already.
+	 * @param bool $nocreate Don't create the page if it doesn't exist already.
 	 *
-	 * @return true|array True on success, or an error message with an error code otherwise
+	 * @return true|array True on success, or an error message with an error code otherwise.
 	 *
 	 * @throws \MWContentSerializationException Should not happen
 	 * @throws MWException Should not happen
@@ -64,9 +96,14 @@ class WSSlots {
 		User $user,
 		WikiPage $wikiPage,
 		array $slotUpdates,
-		string $summary,
+		string $summary = '',
 		bool $append = false,
-		string $watchlist = ""
+		bool $prepend = false,
+		string $watchlist = "",
+		bool $bot = false,
+		bool $minor = false,
+		bool $createonly = false,
+		bool $nocreate = false
 	) {
 		$logger = Logger::getLogger();
 
@@ -78,6 +115,10 @@ class WSSlots {
 		if ( $titleObject === null ) {
 			$logger->alert( 'The WikiPage object given to editSlot is not valid, since it does not contain a Title' );
 			return [ wfMessage( "wsslots-error-invalid-wikipage-object" ) ];
+		}
+
+		if ( $titleObject->exists() && $createonly || !$titleObject->exists() && $nocreate ) {
+			return true;
 		}
 
 		foreach ( $slotUpdates as $slotName => $text ) {
@@ -96,8 +137,8 @@ class WSSlots {
 				return [ wfMessage( "wsslots-apierror-unknownslot", $slotName ), "unknownslot" ];
 			}
 
-			// Alter $text when the $append parameter is set
-			if ( $append ) {
+			// Alter $text when the $append or $prepend (or both) is true
+			if ( $append || $prepend ) {
 				// We want to append the given text to the current page, instead of replacing the content
 				$content = self::getSlotContent( $wikiPage, $slotName );
 
@@ -106,7 +147,7 @@ class WSSlots {
 						$slotContentHandler = $content->getContentHandler();
 						$modelId = $slotContentHandler->getModelID();
 
-						$logger->alert( 'Tried to append to slot {slotName} with non-textual content model {modelId} while editing page {page}', [
+						$logger->alert( 'Tried to append/prepend to slot {slotName} with non-textual content model {modelId} while editing page {page}', [
 							'slotName' => $slotName,
 							'modelId' => $modelId,
 							'page' => $titleObject->getFullText()
@@ -115,9 +156,17 @@ class WSSlots {
 						return [ wfMessage( "apierror-appendnotsupported" ), $modelId ];
 					}
 
-					/** @var string $text */
 					$contentText = $content->serialize();
-					$text = $contentText . $text;
+
+					if ( $append ) {
+						$contentText = $contentText . $text;
+					}
+
+					if ( $prepend ) {
+						$contentText = $text . $contentText;
+					}
+
+					$text = $contentText;
 				}
 			}
 
@@ -166,13 +215,35 @@ class WSSlots {
 		$flags = EDIT_INTERNAL;
 		$comment = CommentStoreComment::newUnsavedComment( $summary );
 
-		if ( $watchlist === "nochange" ) {
-			$flags |= EDIT_SUPPRESS_RC;
+		if ( $bot ) {
+			$flags |= EDIT_FORCE_BOT;
+		}
+
+		if ( $minor ) {
+			$flags |= EDIT_MINOR;
 		}
 
 		$logger->debug( 'Calling saveRevision on PageUpdater' );
 		$pageUpdater->saveRevision( $comment, $flags );
 		$logger->debug( 'Finished calling saveRevision on PageUpdater' );
+
+		// Add the page to the watchlist
+		$watch = self::getWatchlistValue( $watchlist, $titleObject, $user );
+		if ( method_exists( MediaWikiServices::class, 'getWatchlistManager' ) ) {
+			// >1.37
+			MediaWikiServices::getInstance()->getWatchlistManager()->setWatch( $watch, $user, $titleObject );
+		} else {
+			// <=1.36
+			$watchedItemStore = MediaWikiServices::getInstance()->getWatchedItemStore();
+
+			if ( $watch ) {
+				$watchedItemStore->addWatch( $user, $titleObject );
+			} else {
+				$watchedItemStore->removeWatch( $user, $titleObject );
+			}
+
+			$user->invalidateCache();
+		}
 
 		if ( !$pageUpdater->isUnchanged() && MediaWikiServices::getInstance()->getMainConfig()->get( "WSSlotsDoPurge" ) ) {
 			$logger->debug( 'Refreshing data for page {page}', [
@@ -203,5 +274,49 @@ class WSSlots {
 		}
 
 		return $revisionRecord->getContent( $slot );
+	}
+
+	/**
+	 * Return true if the page should be watched, false otherwise.
+	 *
+	 * @param string $watchlist Valid values: 'watch', 'unwatch', 'preferences', 'nochange'
+	 * @param Title $title The page under consideration
+	 * @param User $user The user get the value for
+	 * @return bool
+	 */
+	protected static function getWatchlistValue(
+		string $watchlist,
+		Title $title,
+		User $user,
+	): bool {
+		$services = MediaWikiServices::getInstance();
+
+		$userWatching = $services->getWatchlistManager()->isWatchedIgnoringRights( $user, $title );
+		$userOptionsLookup = $services->getUserOptionsLookup();
+
+		switch ( $watchlist ) {
+			case 'watch':
+				return true;
+
+			case 'unwatch':
+				return false;
+
+			case 'preferences':
+				// If the user is already watching, don't bother checking
+				if ( $userWatching ) {
+					return true;
+				}
+				// If the user is a bot, act as 'nochange' to avoid big watchlists on single users
+				if ( $user->isBot() ) {
+					return false;
+				}
+				return $userOptionsLookup->getBoolOption( $user, 'watchdefault' ) ||
+					$userOptionsLookup->getBoolOption( $user, 'watchcreations' ) &&
+					!$title->exists();
+
+			// case 'nochange':
+			default:
+				return $userWatching;
+		}
 	}
 }

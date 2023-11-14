@@ -54,11 +54,16 @@ class ApiEditSlots extends ApiBase {
 			$slotUpdates,
 			$params["summary"],
 			$params["append"],
-			$params["watchlist"]
+			$params["prepend"],
+			$params["watchlist"],
+			$params["bot"],
+			$params["minor"],
+			$params["createonly"],
+			$params["nocreate"]
 		);
 
 		if ( $result !== true ) {
-			list( $message, $code ) = $result;
+			[ $message, $code ] = $result;
 
 			Logger::getLogger()->alert( 'Editing slot failed while performing edit through the "editslots" API: {message}', [
 				'message' => $message
@@ -90,29 +95,54 @@ class ApiEditSlots extends ApiBase {
 	public function getAllowedParams(): array {
 		$params = [
 			'title' => [
-				ApiBase::PARAM_TYPE => 'string'
+				ParamValidator::PARAM_TYPE => 'string'
 			],
 			'pageid' => [
-				ApiBase::PARAM_TYPE => 'integer'
+				ParamValidator::PARAM_TYPE => 'integer'
 			],
 			'append' => [
-				ApiBase::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_DEFAULT => false
+			],
+			'prepend' => [
+				ParamValidator::PARAM_TYPE => 'boolean',
 				ParamValidator::PARAM_DEFAULT => false
 			],
 			'summary' => [
-				ApiBase::PARAM_TYPE => 'text',
+				ParamValidator::PARAM_TYPE => 'text',
 				ParamValidator::PARAM_DEFAULT => ""
 			],
 			'watchlist' => [
-				ApiBase::PARAM_TYPE => 'text',
-				ParamValidator::PARAM_DEFAULT => ""
+				ParamValidator::PARAM_TYPE => [
+					'watch',
+					'unwatch',
+					'preferences',
+					'nochange',
+				],
+				ParamValidator::PARAM_DEFAULT => "nochange",
+			],
+			'bot' => [
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_DEFAULT => false
+			],
+			'minor' => [
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_DEFAULT => false
+			],
+			'createonly' => [
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_DEFAULT => false
+			],
+			'nocreate' => [
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_DEFAULT => false
 			]
 		];
 
 		$slots = MediaWikiServices::getInstance()->getSlotRoleRegistry()->getKnownRoles();
 		foreach ( $slots as $slotName ) {
 			$params[self::maskSlotName( $slotName )] = [
-				ApiBase::PARAM_TYPE => 'text',
+				ParamValidator::PARAM_TYPE => 'text',
 				ApiBase::PARAM_HELP_MSG => 'apihelp-editslots-param-slot'
 			];
 		}
