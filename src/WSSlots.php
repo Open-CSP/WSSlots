@@ -29,14 +29,15 @@ class WSSlots {
 	 * @param string $slotName The slot to edit
 	 * @param string $summary The summary to use
 	 * @param bool $append Whether to append to or replace the current text
-	 * @param bool $prepend Whether to prepend to the current text.
 	 * @param string $watchlist Unconditionally add (watch) or remove (unwatch) the page from the current user's
 	 *                           watchlist, use preferences (preferences), or do not change watch (nochange, default).
 	 *                           Must be one of the following values: watch, unwatch, preferences, nochange.
+	 * @param bool $prepend Whether to prepend to the current text.
 	 * @param bool $bot Whether this edit should be marked as a bot edit
 	 * @param bool $minor Whether this edit should be marked as minor
 	 * @param bool $createonly Don't edit the page if it exists already.
 	 * @param bool $nocreate Don't create the page if it doesn't exist already.
+	 * @param bool $suppress Whether to suppress the edit in recent changes.
 	 *
 	 * @return true|array True on success, or an error message with an error code otherwise
 	 *
@@ -50,12 +51,13 @@ class WSSlots {
 		string $slotName,
 		string $summary,
 		bool $append = false,
-		bool $prepend = false,
 		string $watchlist = "nochange",
+		bool $prepend = false,
 		bool $bot = false,
 		bool $minor = false,
 		bool $createonly = false,
-		bool $nocreate = false
+		bool $nocreate = false,
+		bool $suppress = false
 	) {
 		return self::editSlots(
 			$user,
@@ -63,12 +65,13 @@ class WSSlots {
 			[ $slotName => $text ],
 			$summary,
 			$append,
-			$prepend,
 			$watchlist,
+			$prepend,
 			$bot,
 			$minor,
 			$createonly,
-			$nocreate
+			$nocreate,
+			$suppress
 		);
 	}
 
@@ -78,14 +81,15 @@ class WSSlots {
 	 * @param array $slotUpdates Associative array with slotName as key, text as value.
 	 * @param string $summary The summary to use.
 	 * @param bool $append Whether to append to the current text.
-	 * @param bool $prepend Whether to prepend to the current text.
 	 * @param string $watchlist Unconditionally add (watch) or remove (unwatch) the page from the current user's
 	 *                          watchlist, use preferences (preferences), or do not change watch (nochange, default).
 	 *                          Must be one of the following values: watch, unwatch, preferences, nochange.
+	 * @param bool $prepend Whether to prepend to the current text.
 	 * @param bool $bot Whether this edit should be marked as a bot edit.
 	 * @param bool $minor Whether this edit should be marked as minor.
 	 * @param bool $createonly Don't edit the page if it exists already.
 	 * @param bool $nocreate Don't create the page if it doesn't exist already.
+	 * @param bool $suppress Whether to suppress the edit in recent changes.
 	 *
 	 * @return true|array True on success, or an error message with an error code otherwise.
 	 *
@@ -98,12 +102,13 @@ class WSSlots {
 		array $slotUpdates,
 		string $summary = '',
 		bool $append = false,
-		bool $prepend = false,
 		string $watchlist = "",
+		bool $prepend = false,
 		bool $bot = false,
 		bool $minor = false,
 		bool $createonly = false,
-		bool $nocreate = false
+		bool $nocreate = false,
+		bool $suppress = false
 	) {
 		$logger = Logger::getLogger();
 
@@ -223,6 +228,10 @@ class WSSlots {
 			$flags |= EDIT_MINOR;
 		}
 
+		if ( $suppress ) {
+			$flags |= EDIT_SUPPRESS_RC;
+		}
+
 		$logger->debug( 'Calling saveRevision on PageUpdater' );
 		$pageUpdater->saveRevision( $comment, $flags );
 		$logger->debug( 'Finished calling saveRevision on PageUpdater' );
@@ -291,7 +300,13 @@ class WSSlots {
 	): bool {
 		$services = MediaWikiServices::getInstance();
 
-		$userWatching = $services->getWatchlistManager()->isWatchedIgnoringRights( $user, $title );
+		if ( method_exists( MediaWikiServices::class, 'getWatchlistManager' ) ) {
+			// >=1.37
+			$userWatching = $services->getWatchlistManager()->isWatchedIgnoringRights( $user, $title );
+		} else {
+			$userWatching = $services->getWatchedItemStore()->isWatched( $user, $title );
+		}
+
 		$userOptionsLookup = $services->getUserOptionsLookup();
 
 		switch ( $watchlist ) {

@@ -59,7 +59,8 @@ class ApiEditSlots extends ApiBase {
 			$params["bot"],
 			$params["minor"],
 			$params["createonly"],
-			$params["nocreate"]
+			$params["nocreate"],
+			$params["suppress"]
 		);
 
 		if ( $result !== true ) {
@@ -134,6 +135,10 @@ class ApiEditSlots extends ApiBase {
 				ParamValidator::PARAM_DEFAULT => false
 			],
 			'nocreate' => [
+				ParamValidator::PARAM_TYPE => 'boolean',
+				ParamValidator::PARAM_DEFAULT => false
+			],
+			'suppress' => [
 				ParamValidator::PARAM_TYPE => 'boolean',
 				ParamValidator::PARAM_DEFAULT => false
 			]
