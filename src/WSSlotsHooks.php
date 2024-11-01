@@ -134,7 +134,14 @@ class WSSlotsHooks implements
 		$semanticSlots = RequestContext::getMain()->getConfig()->get( 'WSSlotsSemanticSlots' );
 
 		try {
-			$wikiPage = WikiPage::factory( $subjectTitle );
+			
+			if ( method_exists( MediaWikiServices::class, 'getWikiPageFactory' ) ) { 
+				$wikiPage = MediaWikiServices::getInstance()
+					->getWikiPageFactory()
+					->newFromTitle( $subjectTitle );
+			} else {
+				$wikiPage = WikiPage::factory( $subjectTitle );
+			}
 		} catch ( MWException $exception ) {
 			return true;
 		}
