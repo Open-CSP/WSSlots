@@ -2,6 +2,7 @@
 
 namespace WSSlots;
 
+use MediaWiki\MediaWikiServices;
 use MWException;
 use RequestContext;
 use Title;
@@ -30,8 +31,14 @@ trait WikiPageTrait {
 
 		$title = Title::newFromText( $pageName );
 
-		return $title !== null && $title->exists() ?
-			WikiPage::factory( $title ) :
-			null;
+		if ( $title === null || !$title->exists() ) {
+			return null;
+		}
+		if ( method_exists( MediaWikiServices::class, 'getWikiPageFactory' ) ) { 
+			return MediaWikiServices::getInstance()
+				->getWikiPageFactory()
+				->newFromTitle( $title );
+		}
+		return WikiPage::factory( $title );
 	}
 }
