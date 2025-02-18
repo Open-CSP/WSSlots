@@ -15,7 +15,36 @@ use TextContent;
  * @ingroup Actions
  */
 class SlotAwareRawAction extends RawAction {
-	public function getName() {
+    public function __construct(
+        $article,
+        $context
+    ) {
+        $mediaWikiServices = MediaWikiServices::getInstance();
+
+        $parser = $mediaWikiServices->getParser();
+        $permissionManager = $mediaWikiServices->getPermissionManager();
+        $revisionLookup = $mediaWikiServices->getRevisionLookup();
+
+        if ( method_exists( $mediaWikiServices, 'getRestrictionStore' ) ) {
+            $restrictionStore = $mediaWikiServices->getRestrictionStore();
+        } else {
+            $restrictionStore = null;
+        }
+
+        $userFactory = $mediaWikiServices->getUserFactory();
+
+        parent::__construct(
+            $article,
+            $context,
+            $parser,
+            $permissionManager,
+            $revisionLookup,
+            $restrictionStore,
+            $userFactory
+        );
+    }
+
+    public function getName() {
 		return 'rawslot';
 	}
 
