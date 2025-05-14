@@ -296,7 +296,7 @@ class WSSlots {
 	protected static function getWatchlistValue(
 		string $watchlist,
 		Title $title,
-		User $user,
+		User $user
 	): bool {
 		$services = MediaWikiServices::getInstance();
 
