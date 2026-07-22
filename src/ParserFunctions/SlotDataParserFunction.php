@@ -9,7 +9,6 @@ use FormatJson;
 use JsonPath\InvalidJsonException;
 use JsonPath\InvalidJsonPathException;
 use JsonPath\JsonObject;
-use MWException;
 use Parser;
 use TextContent;
 use WikibaseSolutions\MediaWikiTemplateParser\RecursiveParser;
@@ -33,7 +32,6 @@ class SlotDataParserFunction {
 	 * @param string|null $key
 	 * @param string|null $search
 	 * @return string|array
-	 * @throws MWException
 	 */
 	public function execute(
 		Parser $parser,

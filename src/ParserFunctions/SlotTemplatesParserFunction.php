@@ -4,7 +4,6 @@ namespace WSSlots\ParserFunctions;
 
 use ComplexArray;
 use Error;
-use MWException;
 use Parser;
 use TextContent;
 use WikibaseSolutions\MediaWikiTemplateParser\Parser as DeprecatedParser;
@@ -31,7 +30,6 @@ class SlotTemplatesParserFunction {
 	 * @param string|null $arrayName
 	 * @param string|null $recursive
 	 * @return string
-	 * @throws MWException
 	 */
 	public function execute(
 		Parser $parser,

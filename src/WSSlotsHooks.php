@@ -10,12 +10,12 @@ use MediaWiki\Hook\MediaWikiServicesHook;
 use MediaWiki\Hook\ParserFirstCallInitHook;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\ResourceLoader\Hook\ResourceLoaderGetConfigVarsHook;
-use MWException;
 use RequestContext;
 use SMW\ParserData;
 use SMW\SemanticData;
 use SMW\Store;
 use SMWDIContainer;
+use Throwable;
 use WikiPage;
 use WSSlots\ParserFunctions\SlotDataParserFunction;
 use WSSlots\ParserFunctions\SlotParserFunction;
@@ -54,8 +54,6 @@ class WSSlotsHooks implements
 
 	/**
 	 * @inheritDoc
-	 *
-	 * @throws MWException
 	 */
 	public function onParserFirstCallInit( $parser ) {
 		$parser->setFunctionHook( 'slot', [ new SlotParserFunction(), 'execute' ] );
@@ -142,7 +140,7 @@ class WSSlotsHooks implements
 			} else {
 				$wikiPage = WikiPage::factory( $subjectTitle );
 			}
-		} catch ( MWException $exception ) {
+		} catch ( Throwable $exception ) {
 			return true;
 		}
 
