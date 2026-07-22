@@ -6,7 +6,6 @@ use ApiBase;
 use ApiUsageException;
 use MediaWiki\Revision\SlotRecord;
 use MWContentSerializationException;
-use MWException;
 use Wikimedia\ParamValidator\ParamValidator;
 use WSSlots\Logger;
 use WSSlots\SlotEditOptions;
@@ -21,7 +20,6 @@ class ApiEditSlot extends ApiBase {
 	 *
 	 * @throws ApiUsageException
 	 * @throws MWContentSerializationException
-	 * @throws MWException
 	 */
 	public function execute() {
 		$this->useTransactionalTimeLimit();

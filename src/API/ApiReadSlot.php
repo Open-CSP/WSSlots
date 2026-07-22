@@ -5,7 +5,6 @@ namespace WSSlots\API;
 use ApiBase;
 use ApiUsageException;
 use MediaWiki\Revision\SlotRecord;
-use MWException;
 use TextContent;
 use Wikimedia\ParamValidator\ParamValidator;
 use WSSlots\WSSlots;
@@ -18,7 +17,6 @@ class ApiReadSlot extends ApiBase {
 	 * @inheritDoc
 	 *
 	 * @throws ApiUsageException
-	 * @throws MWException
 	 */
 	public function execute() {
 		$this->useTransactionalTimeLimit();

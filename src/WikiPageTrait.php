@@ -3,9 +3,9 @@
 namespace WSSlots;
 
 use MediaWiki\MediaWikiServices;
-use MWException;
 use RequestContext;
 use Title;
+use Throwable;
 use WikiPage;
 
 /**
@@ -17,14 +17,12 @@ trait WikiPageTrait {
 	 *
 	 * @param string|null $pageName
 	 * @return WikiPage|null
-	 *
-	 * @throws MWException
 	 */
 	private function getWikiPage( ?string $pageName ): ?WikiPage {
 		if ( !$pageName ) {
 			try {
 				return RequestContext::getMain()->getWikiPage();
-			} catch ( MWException $exception ) {
+			} catch ( Throwable $exception ) {
 				return null;
 			}
 		}

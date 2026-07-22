@@ -7,7 +7,6 @@ use ApiUsageException;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\RevisionRecord;
 use MediaWiki\Revision\SlotRecord;
-use MWException;
 use WikibaseSolutions\MediaWikiTemplateParser\RecursiveParser;
 use Wikimedia\ParamValidator\ParamValidator;
 
@@ -19,7 +18,6 @@ class ApiParseTemplates extends ApiBase {
 	 * @inheritDoc
 	 *
 	 * @throws ApiUsageException
-	 * @throws MWException
 	 */
 	public function execute() {
 		$this->useTransactionalTimeLimit();

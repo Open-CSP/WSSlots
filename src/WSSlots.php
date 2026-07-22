@@ -8,7 +8,6 @@ use Content;
 use ContentHandler;
 use MediaWiki\MediaWikiServices;
 use MediaWiki\Revision\SlotRecord;
-use MWException;
 use TextContent;
 use Title;
 use User;
@@ -31,9 +30,6 @@ class WSSlots {
 	 * @param SlotEditOptions $options The options to use.
 	 *
 	 * @return true|array True on success, or an error message with an error code otherwise.
-	 *
-	 * @throws \MWContentSerializationException Should not happen
-	 * @throws MWException Should not happen
 	 */
 	final public static function performSlotEdit(
 		User $user,
@@ -57,9 +53,6 @@ class WSSlots {
 	 * @param SlotEditOptions $options The options to use.
 	 *
 	 * @return true|array True on success, or an error message with an error code otherwise.
-	 *
-	 * @throws \MWContentSerializationException Should not happen
-	 * @throws MWException Should not happen
 	 */
 	final public static function performSlotEdits(
 		User $user,
@@ -266,9 +259,6 @@ class WSSlots {
 	 * @param string[] $tags Change tags to apply to the revision.
 	 * @return true|array True on success, or an error message with an error code otherwise
 	 *
-	 * @throws \MWContentSerializationException Should not happen
-	 * @throws MWException Should not happen
-	 *
 	 * @deprecated Use WSSlots::performSlotEdit() instead
 	 * @see WSSlots::performSlotEdit()
 	 */
@@ -323,9 +313,6 @@ class WSSlots {
 	 * @param string[] $tags Change tags to apply to the revision.
 	 *
 	 * @return true|array True on success, or an error message with an error code otherwise.
-	 *
-	 * @throws \MWContentSerializationException Should not happen
-	 * @throws MWException Should not happen
 	 *
 	 * @deprecated Use WSSlots::performSlotEdits() instead
 	 * @see WSSlots::performSlotEdits()

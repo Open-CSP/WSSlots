@@ -5,7 +5,6 @@ namespace WSSlots\Scribunto;
 use Error;
 use FormatJson;
 use JsonContent;
-use MWException;
 use TextContent;
 use WikibaseSolutions\MediaWikiTemplateParser\RecursiveParser;
 use WSSlots\UserCanTrait;
@@ -39,7 +38,6 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 	 * @param string $slotName
 	 * @param string|null $pageName
 	 * @return array
-	 * @throws MWException
 	 */
 	public function slotContent( string $slotName, ?string $pageName = null ): array {
 		$wikiPage = $this->getWikiPage( $pageName );
@@ -69,7 +67,6 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 	 * @param string $slotName
 	 * @param string|null $pageName
 	 * @return array
-	 * @throws MWException
 	 */
 	public function slotTemplates( string $slotName, ?string $pageName = null ): array {
 		$wikiPage = $this->getWikiPage( $pageName );
@@ -103,7 +100,6 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 	 * @param string $slotName
 	 * @param string|null $pageName
 	 * @return array
-	 * @throws MWException
 	 */
 	public function slotData( string $slotName, ?string $pageName = null ): array {
 		$wikiPage = $this->getWikiPage( $pageName );
@@ -149,7 +145,6 @@ class ScribuntoLuaLibrary extends \Scribunto_LuaLibraryBase {
 	 * @param string $slotName
 	 * @param string|null $pageName
 	 * @return array
-	 * @throws MWException
 	 */
 	public function slotContentModel( string $slotName, ?string $pageName = null ): array {
 		$wikiPage = $this->getWikiPage( $pageName );

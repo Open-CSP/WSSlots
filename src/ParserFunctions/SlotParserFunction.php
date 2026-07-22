@@ -2,7 +2,6 @@
 
 namespace WSSlots\ParserFunctions;
 
-use MWException;
 use Parser;
 use TextContent;
 use WSSlots\UserCanTrait;
@@ -24,7 +23,6 @@ class SlotParserFunction {
 	 * @param string|null $pageName
 	 * @param string|null $parse
 	 * @return string|array
-	 * @throws MWException
 	 */
 	public function execute( Parser $parser, string $slotName, ?string $pageName = null, ?string $parse = null ) {
 		if ( !$pageName ) {
