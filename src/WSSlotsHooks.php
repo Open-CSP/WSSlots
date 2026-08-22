@@ -125,7 +125,7 @@ class WSSlotsHooks implements
 	public static function onBeforeDataUpdateComplete( Store $store, SemanticData $semanticData ): bool {
 		$subjectTitle = $semanticData->getSubject()->getTitle();
 
-		if ( $subjectTitle === null ) {
+		if ( $subjectTitle === null || !$subjectTitle->canExist() ) {
 			return true;
 		}
 
