@@ -203,11 +203,18 @@ class WSSlotsHooks implements
 				continue;
 			}
 
+			// Keep _INST ( category ) _SUBC ( subcat ).
+			// We should discuss to change this better and add
+			// '_INST', '_SUBC', '_SOBJ', '_ASK', '_ERRC'
 			foreach ( $slotSemanticData->getProperties() as $property ) {
-                if ( $property->getKey() === '_SKEY' ) {
+				if ( $property->getKey() === '_SKEY' ) {
 					// Remove the sortkey from the slot semantic data
-                    $slotSemanticData->removeProperty( $property );
-                } elseif ( !( $property instanceof SMWDIContainer ) && !$property->isUserDefined() ) {
+					$slotSemanticData->removeProperty( $property );
+				} elseif (
+					!( $property instanceof SMWDIContainer ) &&
+					!$property->isUserDefined() &&
+					!in_array( $property->getKey(), [ '_INST', '_SUBC' ], true )
+				) {
 					// Remove any other pre-defined properties from the main semantic data
 					$semanticData->removeProperty( $property );
 				}
